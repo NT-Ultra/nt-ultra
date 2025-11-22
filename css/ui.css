@@ -17,7 +17,6 @@ body {
     grid-template-rows: auto auto auto;
     min-height: 100vh;
     position: relative;
-
 }
 
 html {
@@ -142,23 +141,26 @@ html {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.7;
     transition: opacity 0.2s ease;
 }
 .add-shortcut:hover {
     opacity: 1;
+    & .add-shortcut-icon {
+        border: 2px dashed rgba(31, 31, 31, 0.15);
+    }
 }
 .add-shortcut-icon {
     width: 64px;
     height: 64px;
     border-radius: calc(var(--element-border-radius) + 6px);
-    background: rgba(31, 41, 55, 0.6);
-    backdrop-filter: blur(10px);
-    border: 2px dashed rgba(75, 85, 99, 1);
+    background: rgba(31, 31, 31, 0.1);
+    border: 2px dashed rgba(31, 31, 31, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
 }
+/* last 3 code blocks ^ cooked. */
 
 .settings-btn {
     position: fixed;

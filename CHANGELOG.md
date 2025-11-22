@@ -1,3 +1,10 @@
+### <ins>NT Ultra 0.1.2-beta</ins>
+
+- offset loading (other) wallpaper data until first sidebar interaction -> page loads instantly even with 8 massive wallpapers stored.
+- offset section visibilities with page load animation (visually pleasant) ->
+- adjustments to add shortcut button style
+- removed unecessary pointers on drag & dropping of shortcuts (1.1.1)
+
 ### <ins>NT Ultra 0.1-beta</ins>
 
 - <!--After months of delay, coming back and going forth, restructuring and organizing, again and again. Refining knowledge on db's, modals, and theming.. After the tarnation of a project named userChrome Companion. And after settling on a name for this New Tab Page replacement. -->NT Ultra is ready for beta.

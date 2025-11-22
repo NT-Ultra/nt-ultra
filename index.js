@@ -102,7 +102,6 @@ async function loadData() {
             shortcuts = await window.syncModule.restoreFromSync('shortcuts_data');
             if (shortcuts) await dbSet('shortcuts', 'data', shortcuts);
         }
-        let wallpapers = await dbGet('wallpapers', 'data');
         let currentWallpaper = await dbGet('settings', 'currentWallpaper');
         if (currentWallpaper === undefined && window.syncModule) {
             currentWallpaper = await window.syncModule.restoreFromSync('currentWallpaper');
@@ -142,7 +141,6 @@ async function loadData() {
             state.settings = { ...DEFAULT_SETTINGS };
             state.settings.themeMode = state.activeTheme;
         }
-        
         // Rest of the function stays the same...
         if (shortcuts) {
             state.shortcuts = shortcuts;
@@ -150,7 +148,8 @@ async function loadData() {
                 initializeShortcutOrder();
             }
         }
-        if (wallpapers) state.wallpapers = wallpapers;
+        // Shouldnt load wallpapers here, 8 wallpapers of massive size = 1-2+ second page load...
+        // state.wallpapers loaded on settings sidebar first event L1215-ish
         if (currentWallpaper !== undefined) {
             state.currentWallpaper = currentWallpaper;
         } else {
@@ -1212,8 +1211,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('IndexedDB initialized');
     await loadData();
 
-    document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('settings-btn').addEventListener('click', async () => {
         document.getElementById('settings-sidebar').classList.add('open');
+        // lazy load wallpapers so they dont increase page load on launch
+        if (state.wallpapers.length === 0) {
+            console.log('lazy loading wallpapers..');
+            const wallpapers = await dbGet('wallpapers', 'data');
+            if (wallpapers) {
+                state.wallpapers = wallpapers;
+                renderWallpapers();
+            }
+        }
     });
     document.getElementById('close-settings').addEventListener('click', () => {
         document.getElementById('settings-sidebar').classList.remove('open');
