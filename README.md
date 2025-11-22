@@ -17,3 +17,5 @@ NT Ultra is a simple, modern, and familiar New Tab experience for your favorite 
 TODO -- New Tab Ultra has a Wiki. ... .If you can't find what you're looking for there, feel free to open an issue here.
 
 ## Preview
+
+https://github.com/user-attachments/assets/821317e2-2efe-41a7-8c47-55b6be031257
