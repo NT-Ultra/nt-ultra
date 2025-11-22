@@ -587,16 +587,6 @@ function renderShortcuts() {
     grid.innerHTML = '';
     const maxShortcuts = state.settings.maxShortcuts;
     const shortcuts = state.shortcuts.slice(0, maxShortcuts);
-    
-    grid.addEventListener('contextmenu', (e) => {
-        const shortcutEl = e.target.closest('.shortcut');
-        if (!shortcutEl) return;
-        e.preventDefault();
-        const shortcutId = parseInt(shortcutEl.dataset.shortcutId);
-        const shortcut = state.shortcuts.find(s => s.id === shortcutId);
-        if (!shortcut) return;
-        showContextMenu(e, shortcut);
-    });
 
     shortcuts.forEach((shortcut, index) => {
         const div = document.createElement('div');
@@ -630,6 +620,7 @@ function renderShortcuts() {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             showContextMenu(e, shortcut);
+            console.log('shortcut menu clicked');
         });
         icon.appendChild(menuBtn);
         
@@ -637,6 +628,7 @@ function renderShortcuts() {
             if (window.dragState && window.dragState.isDragging) return;
             if (e.button === 1 || e.ctrlKey || e.metaKey) {
                 window.open(shortcut.url, '_blank');
+                console.log('shortcut clicked');
             } else {
                 window.location.href = shortcut.url;
             }
@@ -1492,6 +1484,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('max-shortcuts').addEventListener('input', (e) => {
         updateSetting('maxShortcuts', parseInt(e.target.value));
     });
+
+    const shortcutsGrid = document.getElementById('shortcuts-grid');
+    if (shortcutsGrid) {
+        shortcutsGrid.addEventListener('contextmenu', (e) => {
+            const shortcutEl = e.target.closest('.shortcut');
+            if (!shortcutEl) return;
+            e.preventDefault();
+            const shortcutId = parseInt(shortcutEl.dataset.shortcutId);
+            const shortcut = state.shortcuts.find(s => s.id === shortcutId);
+            if (!shortcut) return;
+            showContextMenu(e, shortcut);
+        });
+    }
 
     const shortcutsContainer = document.querySelector('.shortcuts-container');
     if (shortcutsContainer) {

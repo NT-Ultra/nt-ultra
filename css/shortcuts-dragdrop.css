@@ -1,5 +1,4 @@
 .shortcut {
-    cursor: grab;
     transition: opacity 0.2s ease;
 }
 .shortcut:active {
@@ -38,12 +37,7 @@ body.dragging {
     -webkit-user-select: none;
     -moz-user-select: none;
 }
-.shortcut-icon {
-    pointer-events: none;
-}
-.shortcut-icon * {
-    pointer-events: none;
-}
+
 .shortcut-menu-btn {
     pointer-events: auto;
 }
