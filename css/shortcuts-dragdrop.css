@@ -1,0 +1,49 @@
+.shortcut {
+    cursor: grab;
+    transition: opacity 0.2s ease;
+}
+.shortcut:active {
+    cursor: grabbing;
+}
+.shortcut-placeholder {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.shortcut-placeholder .shortcut-icon {
+    background: transparent !important;
+    border: 2px dashed var(--accent-color);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.shortcut-placeholder .shortcut-title {
+    opacity: 0;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.4;
+        border-color: var(--accent-color);
+    }
+    50% {
+        opacity: 0.8;
+        border-color: color-mix(in srgb, var(--accent-color) 70%, white);
+    }
+}
+
+
+.shortcuts-grid {
+    transition: all 0.2s ease;
+}
+body.dragging {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+.shortcut-icon {
+    pointer-events: none;
+}
+.shortcut-icon * {
+    pointer-events: none;
+}
+.shortcut-menu-btn {
+    pointer-events: auto;
+}

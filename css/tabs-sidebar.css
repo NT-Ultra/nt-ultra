@@ -1,0 +1,237 @@
+.tabs-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(31, 31, 31, 0.2);
+    backdrop-filter: blur(10px);
+    border: none;
+    color: var(--element-fg-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 100;
+}
+.tabs-btn:hover {
+    background: rgba(55, 65, 81, 0.8);
+}
+
+.tabs-sidebar * {
+    user-select: none;
+}
+.tabs-sidebar {
+    position: fixed;
+    top: 5px;
+    margin-left: 5px;
+    left: -415px;
+    width: 400px;
+    height: calc(100vh - 10px);
+    transition: left 0.3s ease;
+    z-index: 200;
+    overflow-y: auto;
+    background: var(--element-bg-color);
+    backdrop-filter: blur(10px);
+    border-radius: var(--element-border-radius);
+}
+.tht {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 10px; height: auto;
+    right: left;
+    display:none;
+    z-index: 1;
+}
+
+.tabs-sidebar.open {
+    left: 0;
+    cursor: default;
+}
+.tabs-sidebar {
+    &::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+    scrollbar-width: none;  
+}
+.tabs-content {
+    padding: 24px;
+}
+.tabs-sidebar.open .tabs-content {
+    pointer-events: auto;
+}
+.tabs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.tabs-header h2 {
+    font-size: 20px;
+    font-weight: bold;
+}
+.tabs-header-actions {
+    display: flex;
+    gap: 8px;
+}
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--element-fg-color);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.tabs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tabs-window-header, .tabs-section-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--element-fg-color) 60%, transparent);
+    padding: 8px 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+    &:hover {
+        color: var(--element-fg-color);
+    }
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.tabs-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--element-layered-bg-color);
+    border: 1px solid color-mix(in srgb, var(--element-layered-bg-color) 95%, white);
+    border-radius: calc(var(--element-border-radius) - 2px);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.tabs-item:hover {
+    background: color-mix(in srgb, var(--element-layered-bg-color) 90%, white);
+}
+.tabs-item.active {
+    background: color-mix(in srgb, var(--accent-color) 20%, var(--element-layered-bg-color));
+    border: 1px dashed var(--accent-color);
+}
+.tabs-item-favicon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.tabs-item-favicon-placeholder {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+}
+.tabs-item-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+.tabs-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tabs-item-url {
+    font-size: 11px;
+    color: color-mix(in srgb, var(--element-fg-color) 50%, transparent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tabs-item-close {
+    background: none;
+    border: none;
+    color: color-mix(in srgb, var(--element-fg-color) 50%, transparent);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.tabs-item:hover .tabs-item-close {
+    opacity: 1;
+}
+.tabs-item-close:hover {
+    background: rgba(220, 38, 38, 0.2);
+    color: #ff6b6b;
+}
+
+.tabs-item-audio {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    padding: 7px 4px 4px 5px;
+    margin-top:-1px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    font-size: 12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tabs-item:hover .tabs-item-audio {
+    opacity: 1;
+}
+.tabs-item-audio:hover {
+    background: color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+.tabs-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing !important;
+    border: 1px dashed var(--accent-color);
+}
+
+.tabs-item[draggable="true"] {
+    cursor: grab;
+}
+
+.tabs-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.tabs-item-audio,
+.tabs-item-close {
+    pointer-events: auto;
+}
+
+.shortcuts-container {
+    transition: background-color 0.2s;
+}
