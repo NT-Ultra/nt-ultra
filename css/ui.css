@@ -435,7 +435,7 @@ html {
     transition: background 0.2s;
 }
 .context-menu-item:hover {
-    background: color-mix(in srgb, var(--accent-color) 20%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 60%, transparent);
 }
 .context-menu-item.danger {
     color: rgb(255,25,25);

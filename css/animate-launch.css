@@ -1,3 +1,9 @@
+/* Offsetting the visibility of some elements on page-launch pretty much avoids the need for a ghost shell,
+especially for when dealing with a shortcuts container that can vary in set size.
+
+A subtle animation means you wont see the "Label" shift up a view pixels within 200ms of dom load, and such.
+*/
+
 @keyframes fadeInOnAppLoad {
     from {
         opacity: 0;
@@ -13,8 +19,8 @@
     animation-delay: 0.15s;
 }
 
-.shortcuts-container {
+.shortcut-icon img {
     opacity: 0;
-    animation: fadeInOnAppLoad 0.8s ease forwards;
-    animation-delay: 0.4s;
+    animation: fadeInOnAppLoad 2s ease forwards;
+    animation-delay: 0.25s;
 }

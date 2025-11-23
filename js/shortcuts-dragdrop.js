@@ -188,7 +188,7 @@ function cleanupDrag() {
     if (dragState.draggedElement) {
         dragState.draggedElement.style.display = '';
         dragState.draggedElement.style.opacity = '';
-        dragState.draggedElement.style.pointerEvents = '';
+        dragState.draggedElement.style.pointerEvents = 'auto';
     }
     dragState = {
         draggedElement: null,
@@ -203,4 +203,7 @@ function cleanupDrag() {
 // send to index
 window.initShortcutDragDrop = initShortcutDragDrop;
 window.initializeShortcutOrder = initializeShortcutOrder;
-window.dragState = dragState;
+Object.defineProperty(window, 'dragState', {
+    get: () => dragState,
+    configurable: true
+});

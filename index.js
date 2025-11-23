@@ -624,6 +624,7 @@ function renderShortcuts() {
         icon.appendChild(menuBtn);
         
         icon.addEventListener('click', (e) => {
+            console.log('Clicked, is dragging should be false', window.dragState?.isDragging);
             if (window.dragState && window.dragState.isDragging) return;
             if (e.button === 1 || e.ctrlKey || e.metaKey) {
                 window.open(shortcut.url, '_blank');
@@ -655,7 +656,7 @@ function renderShortcuts() {
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </div>
-            <span class="shortcut-title">Add</span>
+            <span class="shortcut-title">New</span>
         `;
         addBtn.addEventListener('click', addShortcut);
         grid.appendChild(addBtn);
@@ -813,8 +814,9 @@ function applyStyles() {
         blurStyleTag.textContent = `
             .settings-sidebar {
                 background: color-mix(in srgb, var(--element-bg-color) 90%, transparent) !important;
-                backdrop-filter: blur(10px) !important;
+                
             }
+            .settings-content {backdrop-filter: blur(10px) !important;}
             .tabs-sidebar {
                 background: color-mix(in srgb, var(--element-bg-color) 20%, transparent) !important;
                 backdrop-filter: blur(10px) !important;

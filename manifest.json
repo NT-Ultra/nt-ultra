@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "NT Ultra",
   "description": "The final boss of New Tab Pages",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "icons": {
     "128": "static/logo128.png"
   },

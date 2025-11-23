@@ -6,7 +6,6 @@
 }
 .shortcut-placeholder {
     opacity: 0.5;
-    pointer-events: none;
 }
 .shortcut-placeholder .shortcut-icon {
     background: transparent !important;

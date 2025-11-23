@@ -1,9 +1,15 @@
+### <ins>NT Ultra 0.1.3-beta</ins>
+
+- fixed a bug where a shortcuts drag state wasnt reset after a successful drag, resulting in click events failing
+- adjusted page load animation to specifically target shortcut icons instead of shortcut grid
+- adjustment to context menu hover contrast
+
 ### <ins>NT Ultra 0.1.2-beta</ins>
 
 - offset loading (other) wallpaper data until first sidebar interaction -> page loads instantly even with 8 massive wallpapers stored.
 - offset section visibilities with page load animation (visually pleasant) ->
 - adjustments to add shortcut button style
-- removed unecessary pointers on drag & dropping of shortcuts (1.1.1)
+- removed unecessary pointers on drag & dropping of shortcuts (0.1.1)
 
 ### <ins>NT Ultra 0.1-beta</ins>
 
