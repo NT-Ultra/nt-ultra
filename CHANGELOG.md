@@ -1,4 +1,4 @@
-### <ins>NT Ultra 0.1.5-beta</ins>
+### <ins>NT Ultra 0.1.6-beta</ins>
 
 - adjusted page load animation to specifically target shortcut icons instead of shortcut grid
 - specify animation only for page load event
