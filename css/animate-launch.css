@@ -13,13 +13,16 @@ A subtle animation means you wont see the "Label" shift up a view pixels within 
     }
 }
 
-.header, .settings-btn, .tabs-btn {
+
+body:not([initted]) .header,
+body:not([initted]) .settings-btn,
+body:not([initted]) .tabs-btn {
     opacity: 0;
     animation: fadeInOnAppLoad 0.8s ease forwards;
     animation-delay: 0.15s;
 }
 
-.shortcut-icon img {
+body:not([initted]) .shortcut-icon img {
     opacity: 0;
     animation: fadeInOnAppLoad 2s ease forwards;
     animation-delay: 0.25s;

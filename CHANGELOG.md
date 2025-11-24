@@ -1,8 +1,12 @@
+### <ins>NT Ultra 0.1.5-beta</ins>
+
+- adjusted page load animation to specifically target shortcut icons instead of shortcut grid
+- specify animation only for page load event
+
 ### <ins>NT Ultra 0.1.3-beta</ins>
 
 - fixed a bug where a shortcuts drag state wasnt reset after a successful drag, resulting in click events failing
 - adjusted page load animation to specifically target shortcut icons instead of shortcut grid
-- adjustment to context menu hover contrast
 
 ### <ins>NT Ultra 0.1.2-beta</ins>
 

@@ -1748,4 +1748,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     setInterval(renderGreeting, 60000);
     
     console.log('All event listeners attached');
+
+    const isInitted = sessionStorage.getItem('isInitted') === 'true';
+    if (!isInitted) {
+        setTimeout(() => { // after 5 seconds we can consider the page init. this will be used for animate-launch, and in the future can be used for extension first run tutorial
+            document.body.setAttribute('initted');
+            sessionStorage.setItem('isInitted', 'true');
+        }, 5000);
+    }
+
 });
