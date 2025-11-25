@@ -1,0 +1,12 @@
+/* label styles */
+
+#content-label[label-style="double-shadow"] {
+    --text-shadow: 2px 22px 2px rgba(0,0,0,0.4) !important;
+}
+
+#content-label[label-style="basic-border"] {
+    outline: 2px color-mix(in srgb, var(--element-fg-color) 60%, transparent) solid;
+    width: fit-content;
+    margin-inline: auto;
+    outline-offset: 20px;
+}

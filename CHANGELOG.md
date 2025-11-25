@@ -1,3 +1,28 @@
+# Roadmap
+
+### <ins>Priorities/Notes</ins>
+
+- the index.js is a mess and modularity NEEDS to be addressed (more) if this project is to scale.
+- some of the above would include database seperation, shortcut management seperation, settings & s-sidebar seperation, modal calls, alerts('calling on a non-disruptive noti instead of this default one'), etc, better handling of events on dom load.
+- folders and folder placements, not handled within the shortcut grid.
+- shortcut data needs a constant
+<!--- custom rss feed with rss2json? (maybe not)-->
+
+# Version History
+
+### <ins>NT Ultra 0.2-beta</ins>
+
+- Reorganized Settings tree
+- Expanded settings now save on change (to the currently selected theme)
+- Removed save button (unecessary extra action)
+- New Wallpaper dimming setting
+- New Label Styles setting(s)
+- Import shortcuts settings have been expanded
+- Users can now import a list of links via clipboard or file
+- Users can also export their NT Ultra shortcuts via clipboard or file
+- New shortcut context-menu option to copy shortcut link
+- other changes to naming conventions
+
 ### <ins>NT Ultra 0.1.6-beta</ins>
 
 - adjusted page load animation to specifically target shortcut icons instead of shortcut grid

@@ -12,7 +12,7 @@
 
         <!-- header/label/greeting Section -->
         <div class="header">
-            <h1 id="greeting">New Tab Ultra</h1>
+            <h1 id="content-label">New Tab Ultra</h1>
         </div>
 
         <!-- Shortcuts Grid -->
@@ -61,7 +61,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add Wallpaper
+                        New Wallpaper
                     </button>
                     <button id="remove-wallpaper-btn" class="btn btn-secondary" style="display: none;">
                         Remove Wallpaper
@@ -97,7 +97,7 @@
                     </select>
 
                     <label class="label">Tab Browser</label>
-                    <select id="tab-browser-mode" class="input">
+                    <select id="display-tab-browser" class="input">
                         <option value="disabled">Disabled</option>
                         <option value="button">Button</option>
                         <option value="autohide">Autohide</option>
@@ -111,23 +111,26 @@
                     
                     <div id="theme-controls" class="style-controls" style="display: none;">
                         <label class="label">Background Color</label>
-                        <input type="text" id="bg-color" class="input" placeholder="Leave empty to use default">
+                        <input type="text" id="theme-bg-color" class="input" placeholder="Leave empty to use default">
 
                         <label class="label">Foreground Color</label>
-                        <input type="text" id="fg-color" class="input" placeholder="Leave empty to use default">
+                        <input type="text" id="theme-fg-color" class="input" placeholder="Leave empty to use default">
 
                         <label class="label">Accent Color</label>
-                        <input type="text" id="accent-color" class="input" placeholder="Leave empty to use default">
+                        <input type="text" id="theme-accent-color" class="input" placeholder="Leave empty to use default">
 
-                        <label class="label">Border Radius: <span id="border-radius-value">10</span>px</label>
-                        <input type="range" id="border-radius" class="slider" min="0" max="30" value="10">
+                        <label class="label">Border Radius: <span id="theme-border-radius-value">10</span>px</label>
+                        <input type="range" id="theme-border-radius" class="slider" min="0" max="30" value="10">
 
-                        <label class="label">Animation Speed: <span id="animation-speed-value">0.3</span>s</label>
-                        <input type="range" id="animation-speed" class="slider" min="0.1" max="1" step="0.1" value="0.3">
+                        <label class="label">Animation Speed: <span id="theme-animation-speed-value">0.3</span>s</label>
+                        <input type="range" id="theme-animation-speed" class="slider" min="0.1" max="1" step="0.1" value="0.3">
 
+                        <label class="label">Wallpaper Dimness: 0.<span id="theme-wallpaper-dimness-value">0</span></label>
+                        <input type="range" id="theme-wallpaper-dimness" class="slider" min="0" max="9" step="1" value="0">
+                        
                         <label class="label">Additional settings</label>
                         <div class="checkbox-span">
-                            <span>Enable more blur around the UI</span><input type="checkbox" id="ui-more-blur">
+                            <span>Enable more blur around the UI</span><input type="checkbox" id="theme-blur">
                         </div>
                         <div class="checkbox-span">
                             <span>This checkbox is purely cosmetic</span><input type="checkbox" id="na">
@@ -140,14 +143,13 @@
                         </div>
                     </div>
                     
-                    <div id="theme-controls-state" class="style-controls-state">
+                    <div id="display-expanded-theme-settings" class="style-controls-state">
+                        <button id="theme-controls-remove-btn" class="style-controls-remove-btn">Delete</button>
+                        <button id="theme-controls-add-btn" class="style-controls-add-btn">Save</button>
+                        <button id="theme-controls-reset-btn" class="style-controls-reset-btn">Reset</button>
                         <button id="theme-controls-import-btn" class="style-controls-toggle-btn">Import</button>
                         <button id="theme-controls-export-btn" class="style-controls-toggle-btn">Export</button>
-                        <button id="theme-controls-reset-btn" class="style-controls-reset-btn">Reset</button>
-                        <button id="theme-controls-add-btn" class="style-controls-add-btn">＋</button>
-                        <button id="theme-controls-remove-btn" class="style-controls-remove-btn">－</button>
                         <button id="theme-controls-toggle-btn" class="style-controls-toggle-btn">Expand</button>
-                        <button id="theme-controls-save-btn" class="style-controls-save-btn">Save</button>
                     </div>
                 </div>
 
@@ -162,7 +164,7 @@
                     </select>
                     
                     <label class="label">Content</label>
-                    <select id="greeting-type" class="input">
+                    <select id="content-type" class="input">
                         <option value="none">New Tab Ultra</option>
                         <option value="time">Digital Clock</option>
                         <option value="date">Todays Date</option>
@@ -170,8 +172,15 @@
                         <option value="timeOfDay">Time of Day</option>
                     </select>
                     <input type="text" id="user-name" class="input" placeholder="Your name" style="display: none;">
-                    
-                    <label class="label">Font Size: <span id="label-font-size-value">48</span>px</label>
+
+                    <label class="label">Style</label>
+                    <select id="label-style" class="input">
+                        <option value="none">None</option>
+                        <option value="double-shadow">Extended Shadow</option>
+                        <option value="basic-border">Basic Border</option>
+                    </select>    
+
+                    <label class="label">Scaling: <span id="label-font-size-value">48</span>px</label>
                     <input type="range" id="label-font-size" class="slider" min="24" max="96" value="48">
                 </div>
 
@@ -179,25 +188,26 @@
                 <div class="settings-section" id="shortcuts-section">
                     <h3>Shortcuts</h3>
                     
-                    <label class="label">Max Shortcuts: <span id="max-shortcuts-value">24</span></label>
-                    <input type="range" id="max-shortcuts" class="slider" min="8" max="84" step="4" value="24">
+                    <label class="label">Max Shortcuts: <span id="shortcut-max-limit-value">24</span></label>
+                    <input type="range" id="shortcut-max-limit" class="slider" min="8" max="84" step="4" value="24">
                     
-                    <label class="label">Columns: <span id="grid-columns-value">8</span></label>
-                    <input type="range" id="grid-columns" class="slider" min="4" max="12" value="8">
+                    <label class="label">Columns: <span id="shortcut-grid-columns-value">8</span></label>
+                    <input type="range" id="shortcut-grid-columns" class="slider" min="4" max="12" value="8">
 
-                    <label class="label">Scaling: <span id="scaling-value">100</span>%</label>
-                    <input type="range" id="scaling" class="slider" min="50" max="150" value="100">
+                    <label class="label">Scaling: <span id="shortcut-scaling-value">100</span>%</label>
+                    <input type="range" id="shortcut-scaling" class="slider" min="50" max="150" value="100">
                     
                     <label class="label">Additional settings</label>
                     <div class="checkbox-span">
                         <span>Shortcut titles reveal on hover</span><input type="checkbox" id="shortcut-titles-hover">
                     </div>
                     <div class="checkbox-span">
-                        <span>Shortcut titles scale on hover</span><input type="checkbox" id="shortcut-scale-hover">
+                        <span>Shortcut icon scale on hover</span><input type="checkbox" id="shortcut-scale-hover">
                     </div>
 
                     <div class="style-controls-state">
                         <button id="import-shortcuts-btn" class="import-shortcuts-btn">Import</button>
+                        <button id="export-shortcuts-btn" class="export-shortcuts-btn">Export</button>
                     </div>
                 </div>
                 </div>
@@ -240,7 +250,8 @@
         <div id="context-menu" class="context-menu" style="display: none;">
             <button class="context-menu-item" data-action="pin">Pin</button>
             <button class="context-menu-item" data-action="edit">Edit</button>
-            <button class="context-menu-item" data-action="open">Open in New Window</button>
+            <button class="context-menu-item" data-action="open">Open in New Tab</button>
+            <button class="context-menu-item" data-action="copy">Copy Link</button>
             <button class="context-menu-item danger" data-action="delete">Delete</button>
         </div>
 
@@ -268,9 +279,9 @@
         <!-- Add Theme Modal -->
         <div id="add-theme-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h3>Add New Theme</h3>
+                <h3>Save Theme</h3>
                 
-                <label class="label">Theme Name</label>
+                <label class="label">Save your settings and configuration as a new theme</label>
                 <input type="text" id="add-theme-name" class="input" placeholder="My Theme" maxlength="30">
                 <p class="input-hint">Max 30 characters. Letters, numbers, spaces, hyphens, and underscores only.</p>
 
@@ -436,23 +447,49 @@
         <!-- Import Shortcuts Modal -->
         <div id="import-shortcuts-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h3>Import Firefox Shortcuts?</h3>
-                <p style="font-size: 12px; color: color-mix(in srgb, var(--element-fg-color) 60%, transparent); margin-bottom: 12px;">
-                    Unfortunately there is no way to do this automatically? Can't find an API for it..<br><br>
-                    1. Open <code>about:config</code> in Firefox<br>
-                    2. Search for: <code>browser.newtabpage.pinned</code><br>
-                    3. Copy the entire value and paste below
-                </p>
-                <textarea id="import-shortcuts-json" class="input" placeholder='[{"url":"https://example.com","label":"Example"}...]' rows="8"></textarea>
-                <div class="modal-actions">
-                    <button id="confirm-import-shortcuts" class="btn btn-primary">Import</button>
-                    <button id="cancel-import-shortcuts" class="btn btn-secondary">Cancel</button>
+                <h3>Import Shortcuts</h3>
+                <label class="label">Choose Import Method</label>
+                <div class="checkbox-span">
+                    <span>Delete existing shortcuts before importing?</span><input type="checkbox" id="import-delete-check">
                 </div>
+                <div class="import-options">
+                    <button id="import-shortcuts-file-btn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        File
+                    </button>
+                    <button id="import-shortcuts-clipboard-btn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        Clipboard
+                    </button>
+                    <button id="import-shortcuts-firefox-btn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 6v6l4 2"></path>
+                        </svg>
+                        Firefox
+                    </button>
+                    <button id="export-shortcuts-file-btn" class="btn btn-primary" style="display: none;">File</button>
+                    <button id="export-shortcuts-clipboard-btn" class="btn btn-primary" style="display: none;">Clipboard</button>
+                </div>
+                <div id="import-shortcuts-text-area" style="display: none; margin-top: 16px;">
+                    <label class="label" id="import-shortcuts-label">Paste shortcuts</label>
+                    <textarea id="import-shortcuts-input" class="input" rows="8"></textarea>
+                    <button id="confirm-import-shortcuts-text" class="btn btn-primary" style="margin-top: 8px;">Import</button>
+                </div>
+                <button id="cancel-import-shortcuts" class="btn btn-secondary" style="margin-top: 16px;">Cancel</button>
             </div>
         </div>
-
+        
         <input type="file" id="wallpaper-file-input" accept="image/*" style="display: none;">
         <input type="file" id="import-theme-file-input" accept=".json,application/json" style="display: none;">
+        <input type="file" id="import-shortcuts-file-input" accept=".txt,text/plain" style="display: none;">
     </div>
 
     <script src="index.js"></script>

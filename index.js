@@ -4,23 +4,25 @@ const DEFAULT_SETTINGS = {
     themeMode: 'default',
     displayLabel: true,
     displayShortcuts: true,
-    tabBrowserMode: 'disabled',
-    customBgColor: '',
-    customFgColor: '',
-    customAccentColor: '',
-    customBorderRadius: 10,
-    customAnimationSpeed: 0.3,
-    uiMoreBlur: false,
+    displayTabBrowser: 'disabled',
+    themeBgColor: '',
+    themeFgColor: '',
+    themeAccentColor: '',
+    themeBorderRadius: 10,
+    themeAnimationSpeed: 0.3,
+    themeWallpaperDimness: 0,
+    themeBlur: false,
     shortcutTitlesHover: false,
     shortcutScaleHover: false,
-    styleExpanded: false,
-    labelFontSize: 48,
+    displayExpandedSettings: false,
     labelPosition: 'top',
-    scaling: 100,
-    greetingType: 'none',
-    userName: '',
-    maxShortcuts: 24,
-    gridColumns: 8
+    labelFontSize: 48,
+    labelContent: 'none',
+    labelStyle: 'none',
+    shortcutScaling: 100,
+    shortcutMaxLimit: 24,
+    shortcutGridColumns: 8,
+    userName: ''
 };
 
 const THEME_VERSION = '1.0';
@@ -496,7 +498,6 @@ function getCleanHostname(url) {
         return '';
     }
 }
-
 function getFaviconUrl(url) {
     try {
         const hostname = new URL(url).hostname;
@@ -504,14 +505,12 @@ function getFaviconUrl(url) {
             // no fallback white globes here...
             return null;
         }
-
         return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
     } catch (error) {
         console.error('Invalid URL for favicon:', error);
         return null;
     }
 }
-
 function normalizeUrl(url) {
     url = url.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -524,10 +523,110 @@ function normalizeUrl(url) {
         return null;
     }
 }
+// Shortcut Import/Export ////////////////////////
+function parseShortcutsText(text) {
+    const lines = text.split('\n').filter(line => line.trim());
+    const shortcuts = [];
+    for (const line of lines) {
+        if (state.shortcuts.length + shortcuts.length >= state.settings.shortcutMaxLimit) break;
+        const parts = line.trim().split(/\s+/);
+        if (parts.length === 0) continue;
+        const url = normalizeUrl(parts[0]);
+        if (!url) continue;
+        const title = parts[1] || getCleanHostname(url) || 'Untitled';
+        const customIcon = parts[2] || null;
+        const icon = customIcon || getFaviconUrl(url);
+        const exists = state.shortcuts.some(s => s.url === url);
+        if (!exists) {
+            shortcuts.push({
+                id: Date.now() + shortcuts.length,
+                title: title,
+                url: url,
+                icon: icon,
+                pinned: false,
+                order: state.shortcuts.length + shortcuts.length
+            });
+        }
+    }
+    return shortcuts;
+}
+
+async function importShortcuts(shortcuts) {
+    if (shortcuts.length === 0) {
+        alert('No shortcuts imported. Try checking your format, or if you already have these shortcuts.');
+        return;
+    }
+    state.shortcuts.push(...shortcuts);
+    await saveShortcuts();
+    renderShortcuts();
+    document.getElementById('import-shortcuts-modal').style.display = 'none';
+    alert(`✓ Imported ${shortcuts.length} shortcuts!`);
+}
+async function importFromFirefox(pinnedSites) {
+    if (!Array.isArray(pinnedSites) || pinnedSites.length === 0) {
+        alert('Invalid data or no shortcuts found');
+        return;
+    }
+    const shortcuts = [];
+    for (const site of pinnedSites) {
+        if (state.shortcuts.length + shortcuts.length >= state.settings.shortcutMaxLimit) break;
+        if (!site.url) continue;
+        const exists = state.shortcuts.some(s => s.url === site.url);
+        if (!exists) {
+            shortcuts.push({
+                id: Date.now() + shortcuts.length,
+                title: site.label || getCleanHostname(site.url),
+                url: site.url,
+                icon: site.customScreenshotURL || getFaviconUrl(site.url),
+                pinned: false,
+                order: state.shortcuts.length + shortcuts.length
+            });
+        }
+    }
+    await importShortcuts(shortcuts);
+}
+function exportShortcutsText() {
+    return state.shortcuts.map(s => {
+        let line = s.url;
+        if (s.title) line += ` ${s.title}`;
+        if (s.icon && !s.icon.includes('google.com/s2/favicons')) {
+            line += ` ${s.icon}`;
+        }
+        return line;
+    }).join('\n');
+}
+async function exportShortcutsToFile() {
+    const text = exportShortcutsText();
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'shortcuts.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('Shortcuts exported to file!');
+}
+async function exportShortcutsToClipboard() {
+    const text = exportShortcutsText();
+    try {
+        await navigator.clipboard.writeText(text);
+        alert('Shortcuts copied to clipboard!');
+    } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Shortcuts copied to clipboard!');
+    }
+}
 
 // render all ////////////////////////////////////
 function render() {
-    renderGreeting();
+    renderLabel();
     renderShortcuts();
     renderWallpapers();
     renderSettings();
@@ -535,12 +634,13 @@ function render() {
     applyStyles();
 }
 
-function renderGreeting() {
-    const greeting = document.getElementById('greeting');
+function renderLabel() {
+    const contentlabel = document.getElementById('content-label');
     const hour = new Date().getHours();
     const name = state.settings.userName || 'my Friend';
     let text = 'New Tab Ultra';
-    switch (state.settings.greetingType) {
+    let style = 'none';
+    switch (state.settings.labelContent) {
         case 'time':
             text = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             break;
@@ -570,7 +670,19 @@ function renderGreeting() {
             }
             break;
     }
-    greeting.textContent = text;
+    switch (state.settings.labelStyle) {
+        case 'none':
+            style = 'none';
+            break;
+        case 'double-shadow':
+            style = 'double-shadow';
+            break;
+        case 'basic-border':
+            style = 'basic-border';
+            break;
+    }
+    contentlabel.textContent = text;
+    contentlabel.setAttribute("label-style",style)
     const header = document.querySelector('.header');
     header.style.display = state.settings.displayLabel ? 'block' : 'none';
 }
@@ -584,8 +696,8 @@ function renderShortcuts() {
     }
     container.style.display = 'block';
     grid.innerHTML = '';
-    const maxShortcuts = state.settings.maxShortcuts;
-    const shortcuts = state.shortcuts.slice(0, maxShortcuts);
+    const shortcutMaxLimit = state.settings.shortcutMaxLimit;
+    const shortcuts = state.shortcuts.slice(0, shortcutMaxLimit);
 
     shortcuts.forEach((shortcut, index) => {
         const div = document.createElement('div');
@@ -646,7 +758,7 @@ function renderShortcuts() {
         div.appendChild(title);
         grid.appendChild(div);
     });
-    if (shortcuts.length < maxShortcuts) {
+    if (shortcuts.length < shortcutMaxLimit) {
         const addBtn = document.createElement('div');
         addBtn.className = 'add-shortcut';
         addBtn.innerHTML = `
@@ -662,7 +774,7 @@ function renderShortcuts() {
         grid.appendChild(addBtn);
     }
     if (window.initShortcutDragDrop) {
-        console.log('About to init drag-drop');
+        console.log('Drag Drop initialized');
         setTimeout(() => window.initShortcutDragDrop(), 0);
     }
 }
@@ -727,49 +839,47 @@ function renderThemeDropdown() {
 }
 
 function renderSettings() {
-    document.getElementById('greeting-type').value = state.settings.greetingType;
-    document.getElementById('user-name').value = state.settings.userName;
     document.getElementById('font-family').value = state.settings.fontFamily;
-    document.getElementById('tab-browser-mode').value = state.settings.tabBrowserMode;
     document.getElementById('display-label').value = state.settings.displayLabel ? 'on' : 'off';
     document.getElementById('display-shortcuts').value = state.settings.displayShortcuts ? 'on' : 'off';
-    
+    document.getElementById('display-tab-browser').value = state.settings.displayTabBrowser;
     const themeControls = document.getElementById('theme-controls');
-    themeControls.style.display = state.settings.styleExpanded ? 'block' : 'none';
+    themeControls.style.display = state.settings.displayExpandedSettings ? 'block' : 'none';
     document.getElementById('theme-controls-toggle-btn').textContent = 
-        state.settings.styleExpanded ? 'Collapse' : 'Expand';
-    
-    // Set theme values
-    document.getElementById('bg-color').value = state.settings.customBgColor;
-    document.getElementById('fg-color').value = state.settings.customFgColor;
-    document.getElementById('accent-color').value = state.settings.customAccentColor;
-    document.getElementById('border-radius').value = state.settings.customBorderRadius;
-    document.getElementById('border-radius-value').textContent = state.settings.customBorderRadius;
-    document.getElementById('animation-speed').value = state.settings.customAnimationSpeed;
-    document.getElementById('animation-speed-value').textContent = state.settings.customAnimationSpeed;
-    document.getElementById('ui-more-blur').checked = state.settings.uiMoreBlur;
-    
-    document.getElementById('shortcut-titles-hover').checked = state.settings.shortcutTitlesHover;
-    document.getElementById('shortcut-scale-hover').checked = state.settings.shortcutScaleHover;
-    
+        state.settings.displayExpandedSettings ? 'Collapse' : 'Expand';
+    document.getElementById('theme-bg-color').value = state.settings.themeBgColor;
+    document.getElementById('theme-fg-color').value = state.settings.themeFgColor;
+    document.getElementById('theme-accent-color').value = state.settings.themeAccentColor;
+    document.getElementById('theme-border-radius').value = state.settings.themeBorderRadius;
+    document.getElementById('theme-border-radius-value').textContent = state.settings.themeBorderRadius;
+    document.getElementById('theme-animation-speed').value = state.settings.themeAnimationSpeed;
+    document.getElementById('theme-animation-speed-value').textContent = state.settings.themeAnimationSpeed;
+    document.getElementById('theme-blur').checked = state.settings.themeBlur;
+    document.getElementById('theme-wallpaper-dimness').value = state.settings.themeWallpaperDimness;
+    document.getElementById('theme-wallpaper-dimness-value').textContent = state.settings.themeWallpaperDimness;
+    document.getElementById('content-label').value = state.settings.labelContent;
+    document.getElementById('label-style').value = state.settings.labelStyle;
+    document.getElementById('user-name').value = state.settings.userName;
     document.getElementById('label-font-size').value = state.settings.labelFontSize;
     document.getElementById('label-font-size-value').textContent = state.settings.labelFontSize;
     document.getElementById('label-position').value = state.settings.labelPosition;
-    document.getElementById('scaling').value = state.settings.scaling;
-    document.getElementById('scaling-value').textContent = state.settings.scaling;
-    document.getElementById('grid-columns').value = state.settings.gridColumns;
-    document.getElementById('grid-columns-value').textContent = state.settings.gridColumns;
-    document.getElementById('max-shortcuts').value = state.settings.maxShortcuts;
-    document.getElementById('max-shortcuts-value').textContent = state.settings.maxShortcuts;
+    document.getElementById('shortcut-scaling').value = state.settings.shortcutScaling;
+    document.getElementById('shortcut-scaling-value').textContent = state.settings.shortcutScaling;
+    document.getElementById('shortcut-grid-columns').value = state.settings.shortcutGridColumns;
+    document.getElementById('shortcut-grid-columns-value').textContent = state.settings.shortcutGridColumns;
+    document.getElementById('shortcut-max-limit').value = state.settings.shortcutMaxLimit;
+    document.getElementById('shortcut-max-limit-value').textContent = state.settings.shortcutMaxLimit;
+    document.getElementById('shortcut-titles-hover').checked = state.settings.shortcutTitlesHover;
+    document.getElementById('shortcut-scale-hover').checked = state.settings.shortcutScaleHover;
 
     // Show/hide sections
     document.getElementById('label-section').style.display = state.settings.displayLabel ? 'block' : 'none';
     document.getElementById('shortcuts-section').style.display = state.settings.displayShortcuts ? 'block' : 'none';
     document.getElementById('tab-browser-section').style.display = 
-        state.settings.tabBrowserMode !== 'disabled' ? 'block' : 'none';
+        state.settings.displayTabBrowser !== 'disabled' ? 'block' : 'none';
     const userNameInput = document.getElementById('user-name');
     userNameInput.style.display =
-        (state.settings.greetingType === 'greetings' || state.settings.greetingType === 'timeOfDay')
+        (state.settings.labelContent === 'greetings' || state.settings.labelContent === 'timeOfDay')
         ? 'block' : 'none';
 }
 
@@ -783,9 +893,9 @@ function applyStyles() {
     const tabsSidebar = document.getElementById('tabs-sidebar');
     const tabsBtn = document.getElementById('tabs-btn');
     body.style.fontFamily = state.settings.fontFamily;
-    const bgColor = state.settings.customBgColor || '#2b2a33';
-    const fgColor = state.settings.customFgColor || '#ffffff';
-    const accentColor = state.settings.customAccentColor || '#3b82f6';
+    const bgColor = state.settings.themeBgColor || '#2b2a33';
+    const fgColor = state.settings.themeFgColor || '#ffffff';
+    const accentColor = state.settings.themeAccentColor || '#3b82f6';
     let styleTag = document.getElementById('custom-theme-styles');
     if (!styleTag) {
         styleTag = document.createElement('style');
@@ -797,14 +907,14 @@ function applyStyles() {
             --element-bg-color: ${bgColor} !important;
             --element-fg-color: ${fgColor} !important;
             --accent-color: ${accentColor} !important;
-            --element-border-radius: ${state.settings.customBorderRadius}px !important;
+            --element-border-radius: ${state.settings.themeBorderRadius}px !important;
         }
     `;
-    const animSpeed = state.settings.customAnimationSpeed;
+    const animSpeed = state.settings.themeAnimationSpeed;
     if (tabsSidebar) tabsSidebar.style.transitionDuration = `${animSpeed}s`;
     const settingsSidebar = document.getElementById('settings-sidebar');
     if (settingsSidebar) settingsSidebar.style.transitionDuration = `${animSpeed}s`;
-    if (state.settings.uiMoreBlur) {
+    if (state.settings.themeBlur) {
         let blurStyleTag = document.getElementById('blur-styles');
         if (!blurStyleTag) {
             blurStyleTag = document.createElement('style');
@@ -812,10 +922,7 @@ function applyStyles() {
             document.head.appendChild(blurStyleTag);
         }
         blurStyleTag.textContent = `
-            .settings-sidebar {
-                background: color-mix(in srgb, var(--element-bg-color) 90%, transparent) !important;
-                
-            }
+            .settings-sidebar {background: color-mix(in srgb, var(--element-bg-color) 90%, transparent) !important;}
             .settings-content {backdrop-filter: blur(10px) !important;}
             .tabs-sidebar {
                 background: color-mix(in srgb, var(--element-bg-color) 20%, transparent) !important;
@@ -829,9 +936,7 @@ function applyStyles() {
                 background: color-mix(in srgb, var(--element-bg-color) 10%, transparent) !important;
                 backdrop-filter: blur(10px) !important;
             }
-            .settings-sidebar *:not(select):not(option) {
-                --element-layered-bg-color: var(--more-blur) !important;
-            }
+            .settings-sidebar *:not(select):not(option) {--element-layered-bg-color: var(--more-blur) !important;}
         `;
     } else {
         const blurStyleTag = document.getElementById('blur-styles');
@@ -840,8 +945,8 @@ function applyStyles() {
         }
     }
     if (tabsSidebar && tabsBtn) {
-        window.tabsSidebarMode = state.settings.tabBrowserMode;
-        switch (state.settings.tabBrowserMode) {
+        window.tabsSidebarMode = state.settings.displayTabBrowser;
+        switch (state.settings.displayTabBrowser) {
             case 'disabled':
                 tabsSidebar.style.display = 'none';
                 tabsBtn.style.display = 'none';
@@ -884,18 +989,20 @@ function applyStyles() {
         headerText.style.fontSize = `${state.settings.labelFontSize}px`;
     }
 
-if (window.updateTriggerVisibility) {
-    window.updateTriggerVisibility(state.settings.tabBrowserMode);
-}
+    if (window.updateTriggerVisibility) {
+        window.updateTriggerVisibility(state.settings.displayTabBrowser);
+    }
 
- // Simply toggle a class
-if (state.settings.labelPosition === 'bottom') {
-    header.classList.add('bottom-position');
-} else {
-    header.classList.remove('bottom-position');
-}   
+    // Simply toggle a class
+    if (state.settings.labelPosition === 'bottom') {
+        header.classList.add('bottom-position');
+    } else {
+        header.classList.remove('bottom-position');
+    }   
 
-
+    const dimValue = state.settings.themeWallpaperDimness / 10;
+    app.style.background = `rgba(0, 0, 0, ${dimValue})`;
+    
     if (state.currentWallpaper) {
         if (state.currentWallpaper.startsWith('#')) {
             body.style.background = state.currentWallpaper;
@@ -910,15 +1017,15 @@ if (state.settings.labelPosition === 'bottom') {
         body.style.background = 'linear-gradient(to bottom, #1a1a1a, #0a0a0a)';
         body.style.backgroundImage = '';
     }
-    const scale = state.settings.scaling / 100;
+    const scale = state.settings.shortcutScaling / 100;
     grid.style.transform = `scale(${scale})`;
-    grid.style.gridTemplateColumns = `repeat(${state.settings.gridColumns}, minmax(0, 1fr))`;
+    grid.style.gridTemplateColumns = `repeat(${state.settings.shortcutGridColumns}, minmax(0, 1fr))`;
 }
 
 // Shortcut functions
 function addShortcut() {
-    if (state.shortcuts.length >= state.settings.maxShortcuts) {
-        alert(`Maximum ${state.settings.maxShortcuts} shortcuts allowed`);
+    if (state.shortcuts.length >= state.settings.shortcutMaxLimit) {
+        alert(`Maximum ${state.settings.shortcutMaxLimit} shortcuts allowed`);
         return;
     }
     state.creatingShortcut = true;
@@ -1141,50 +1248,12 @@ function isValidCSSColor(color) {
     return s.color !== '';
 }
 
-function toggleThemeControls() {
-    state.settings.styleExpanded = !state.settings.styleExpanded;
+function toggleDisplayExpandedSettings() {
+    state.settings.displayExpandedSettings = !state.settings.displayExpandedSettings;
     saveSettings();
     renderSettings();
 }
 
-async function saveThemeSettings() {
-    const bgColor = document.getElementById('bg-color').value.trim();
-    const fgColor = document.getElementById('fg-color').value.trim();
-    const accentColor = document.getElementById('accent-color').value.trim();
-    const borderRadius = parseInt(document.getElementById('border-radius').value);
-    const animationSpeed = parseFloat(document.getElementById('animation-speed').value);
-    const moreBlur = document.getElementById('ui-more-blur').checked;
-    const shortcutTitlesHover = document.getElementById('shortcut-titles-hover').checked;
-    const shortcutScaleHover = document.getElementById('shortcut-scale-hover').checked;
-    
-    console.log('Saving theme settings:', { bgColor, fgColor, accentColor, borderRadius, animationSpeed, moreBlur });
-    
-    if (state.activeTheme === 'default') {
-        state.activeTheme = 'custom';
-        await dbSet('settings', 'activeTheme', 'custom');
-    }
-    
-    state.settings.customBgColor = bgColor;
-    state.settings.customFgColor = fgColor;
-    state.settings.customAccentColor = accentColor;
-    
-    if (!isNaN(borderRadius)) {
-        state.settings.customBorderRadius = borderRadius;
-    }
-    if (!isNaN(animationSpeed)) {
-        state.settings.customAnimationSpeed = animationSpeed;
-    }
-    
-    state.settings.uiMoreBlur = moreBlur;
-    state.settings.shortcutTitlesHover = shortcutTitlesHover;
-    state.settings.shortcutScaleHover = shortcutScaleHover;
-    state.settings.themeMode = state.activeTheme;
-    
-    await saveSettings();
-    applyStyles();
-    renderSettings();
-    console.log('Theme settings applied!');
-}
 
 async function switchTheme(mode) {
     if (state.activeTheme === 'custom') {
@@ -1233,7 +1302,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('settings-sidebar').classList.remove('open');
         }
     });
-
     // Tabs button
     const tabsBtn = document.getElementById('tabs-btn');
     const closetabsBtn = document.getElementById('close-tabs-sidebar');
@@ -1247,86 +1315,131 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('tabs-sidebar').classList.toggle('open');
         });
     }
-
     // Wallpapers
     document.getElementById('add-wallpaper-btn').addEventListener('click', () => {
         openWallpaperModal();
     });
-    
     document.getElementById('remove-wallpaper-btn').addEventListener('click', removeCurrentWallpaper);
 
     // Display settings
     document.getElementById('font-family').addEventListener('change', (e) => {
         updateSetting('fontFamily', e.target.value);
     });
-
     document.getElementById('display-label').addEventListener('change', (e) => {
         updateSetting('displayLabel', e.target.value === 'on');
     });
-
     document.getElementById('display-shortcuts').addEventListener('change', (e) => {
         updateSetting('displayShortcuts', e.target.value === 'on');
     });
-
-    document.getElementById('tab-browser-mode').addEventListener('change', (e) => {
+    document.getElementById('display-tab-browser').addEventListener('change', (e) => {
         const newMode = e.target.value;
-        updateSetting('tabBrowserMode', newMode);
+        updateSetting('displayTabBrowser', newMode);
         window.tabsSidebarMode = newMode;
         if (window.updateTriggerVisibility) {
             window.updateTriggerVisibility(newMode);
         }
     });
+    document.getElementById('theme-border-radius').addEventListener('input', (e) => {
+        document.getElementById('theme-border-radius-value').textContent = e.target.value;
+        updateSetting('themeBorderRadius', parseInt(e.target.value));
+    });
+
+    document.getElementById('theme-animation-speed').addEventListener('input', (e) => {
+        const value = parseFloat(e.target.value);
+        document.getElementById('theme-animation-speed-value').textContent = value.toFixed(1);
+        updateSetting('themeAnimationSpeed', value);
+    });
+
+    document.getElementById('theme-wallpaper-dimness').addEventListener('input', (e) => {
+        document.getElementById('theme-wallpaper-dimness-value').textContent = e.target.value;
+        updateSetting('themeWallpaperDimness', parseInt(e.target.value));
+    });
+    document.getElementById('theme-blur').addEventListener('change', (e) => {
+        updateSetting('themeBlur', e.target.checked);
+    });
+    // Label settings
+    document.getElementById('label-position').addEventListener('change', (e) => {
+        updateSetting('labelPosition', e.target.value);
+    });
+    document.getElementById('content-type').addEventListener('change', (e) => {
+        updateSetting('labelContent', e.target.value);
+    });
+    document.getElementById('label-style').addEventListener('change', (e) => {
+        updateSetting('labelStyle', e.target.value);
+    });
+    document.getElementById('user-name').addEventListener('input', (e) => {
+        updateSetting('userName', e.target.value);
+    });
+    document.getElementById('label-font-size').addEventListener('input', (e) => {
+        updateSetting('labelFontSize', parseInt(e.target.value));
+    });
+    // Shortcuts settings
+    document.getElementById('shortcut-max-limit').addEventListener('input', (e) => {
+        updateSetting('shortcutMaxLimit', parseInt(e.target.value));
+    });
+    document.getElementById('shortcut-grid-columns').addEventListener('input', (e) => {
+        updateSetting('shortcutGridColumns', parseInt(e.target.value));
+    });
+    document.getElementById('shortcut-scaling').addEventListener('input', (e) => {
+        updateSetting('shortcutScaling', parseInt(e.target.value));
+    });
+    document.getElementById('shortcut-titles-hover').addEventListener('change', (e) => {
+        updateSetting('shortcutTitlesHover', e.target.checked);
+    });
+    document.getElementById('shortcut-scale-hover').addEventListener('change', (e) => {
+        updateSetting('shortcutScaleHover', e.target.checked);
+    });
+
 
     // Theme mode
     document.getElementById('theme-mode').addEventListener('change', (e) => {
         switchTheme(e.target.value);
     });
-
-    // Theme controls toggle
+    // custom theme css
+    let colorDebounceTimer = null;
+    document.getElementById('theme-bg-color').addEventListener('input', (e) => {
+        clearTimeout(colorDebounceTimer);
+        colorDebounceTimer = setTimeout(() => {
+            updateSetting('themeBgColor', e.target.value.trim());
+        }, 500);
+    });
+    document.getElementById('theme-fg-color').addEventListener('input', (e) => {
+        clearTimeout(colorDebounceTimer);
+        colorDebounceTimer = setTimeout(() => {
+            updateSetting('themeFgColor', e.target.value.trim());
+        }, 500);
+    });
+    document.getElementById('theme-accent-color').addEventListener('input', (e) => {
+        clearTimeout(colorDebounceTimer);
+        colorDebounceTimer = setTimeout(() => {
+            updateSetting('themeAccentColor', e.target.value.trim());
+        }, 500);
+    });
+    // Extended Theme Controls I guess. Need to rename these..
     document.getElementById('theme-controls-toggle-btn').addEventListener('click', (e) => {
         e.preventDefault();
-        toggleThemeControls();
+        toggleDisplayExpandedSettings();
     });
-
-    // Theme save button
-    document.getElementById('theme-controls-save-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        saveThemeSettings();
-        const savebtn = document.getElementById('theme-controls-save-btn');
-        savebtn.textContent = "🗘";
-        savebtn.style.textDecoration = "none";
-        setTimeout(() => {
-            savebtn.textContent = "Save";
-            savebtn.style.textDecoration = "underline";
-        }, 400);
-    });
-
-    // Theme management buttons
     document.getElementById('theme-controls-add-btn').addEventListener('click', (e) => {
         e.preventDefault();
         addTheme();
     });
-
     document.getElementById('theme-controls-remove-btn').addEventListener('click', (e) => {
         e.preventDefault();
         removeTheme();
     });
-
     document.getElementById('theme-controls-import-btn').addEventListener('click', (e) => {
         e.preventDefault();
         importTheme();
     });
-
     document.getElementById('theme-controls-export-btn').addEventListener('click', (e) => {
         e.preventDefault();
         exportTheme();
     });
-
     document.getElementById('theme-controls-reset-btn').addEventListener('click', (e) => {
         e.preventDefault();
         resetEverything();
     });
-
     // Add theme modal
     document.getElementById('confirm-add-theme').addEventListener('click', confirmAddTheme);
     document.getElementById('cancel-add-theme').addEventListener('click', () => {
@@ -1345,7 +1458,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('add-theme-modal').style.display = 'none';
         }
     });
-
     // Export theme modal
     document.getElementById('confirm-export-file').addEventListener('click', confirmExportFile);
     document.getElementById('confirm-export-copy').addEventListener('click', confirmExportCopy);
@@ -1357,7 +1469,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('export-theme-modal').style.display = 'none';
         }
     });
-
     // Import theme modal
     document.getElementById('import-from-file-btn').addEventListener('click', importFromFile);
     document.getElementById('import-from-text-btn').addEventListener('click', importFromText);
@@ -1373,7 +1484,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('import-theme-modal').style.display = 'none';
         }
     });
-
     // Import theme file input
     document.getElementById('import-theme-file-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -1386,7 +1496,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         e.target.value = '';
     });
-
     document.getElementById('confirm-reset').addEventListener('click', confirmReset);
     document.getElementById('cancel-reset').addEventListener('click', () => {
         document.getElementById('reset-modal').style.display = 'none';
@@ -1397,54 +1506,88 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Import shortcuts mod
+    // Import/Export shortcuts
     document.getElementById('import-shortcuts-btn').addEventListener('click', () => {
         document.getElementById('import-shortcuts-modal').style.display = 'flex';
-        document.getElementById('import-shortcuts-json').value = '';
-        setTimeout(() => document.getElementById('import-shortcuts-json').focus(), 100);
+        document.querySelector('#import-shortcuts-modal h3').textContent = 'Import Shortcuts';
+        document.getElementById('import-shortcuts-text-area').style.display = 'none';
+        document.getElementById('import-shortcuts-input').value = '';
+        document.getElementById('import-shortcuts-file-btn').style.display = 'inline-flex';
+        document.getElementById('import-shortcuts-clipboard-btn').style.display = 'inline-flex';
+        document.getElementById('import-shortcuts-firefox-btn').style.display = 'inline-flex';
+        document.getElementById('export-shortcuts-file-btn').style.display = 'none';
+        document.getElementById('export-shortcuts-clipboard-btn').style.display = 'none';
     });
-    document.getElementById('confirm-import-shortcuts').addEventListener('click', async () => {
-        const jsonInput = document.getElementById('import-shortcuts-json').value.trim();
-        if (!jsonInput) {
+    document.getElementById('export-shortcuts-btn').addEventListener('click', () => {
+        document.getElementById('import-shortcuts-modal').style.display = 'flex';
+        document.querySelector('#import-shortcuts-modal h3').textContent = 'Export Shortcuts';
+        document.getElementById('import-shortcuts-text-area').style.display = 'none';
+        document.getElementById('import-shortcuts-file-btn').style.display = 'none';
+        document.getElementById('import-shortcuts-clipboard-btn').style.display = 'none';
+        document.getElementById('import-shortcuts-firefox-btn').style.display = 'none';
+        document.getElementById('export-shortcuts-file-btn').style.display = 'inline-flex';
+        document.getElementById('export-shortcuts-clipboard-btn').style.display = 'inline-flex';
+    });
+    document.getElementById('import-shortcuts-file-btn').addEventListener('click', () => {
+        document.getElementById('import-shortcuts-file-input').click();
+    });
+    document.getElementById('export-shortcuts-file-btn').addEventListener('click', () => {
+        exportShortcutsToFile();
+        document.getElementById('import-shortcuts-modal').style.display = 'none';
+    });
+    document.getElementById('import-shortcuts-file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const text = event.target.result;
+                const parsed = parseShortcutsText(text);
+                await importShortcuts(parsed);
+            };
+            reader.readAsText(file);
+        }
+        e.target.value = '';
+    });
+    document.getElementById('import-shortcuts-clipboard-btn').addEventListener('click', () => {
+        document.getElementById('import-shortcuts-text-area').style.display = 'block';
+        document.getElementById('import-shortcuts-label').textContent = 'Paste one shortcut per line. Title and custom icon are optional..';
+        document.getElementById('import-shortcuts-input').placeholder = 'https://github.com github https://icon.com/github.png';
+        setTimeout(() => document.getElementById('import-shortcuts-input').focus(), 100);
+    });
+    document.getElementById('export-shortcuts-clipboard-btn').addEventListener('click', () => {
+        exportShortcutsToClipboard();
+        document.getElementById('import-shortcuts-modal').style.display = 'none';
+    });
+    document.getElementById('import-shortcuts-firefox-btn').addEventListener('click', () => {
+        document.getElementById('import-shortcuts-text-area').style.display = 'block';
+        document.getElementById('import-shortcuts-label').innerHTML = `
+            <p style="font-size: 12px; color: color-mix(in srgb, var(--element-fg-color) 60%, transparent); margin-bottom: 12px;">
+                Unfortunately there is no way to do this automatically? Can't find an API for it..<br><br>
+                1. In Firefox, go to: about:config<br>
+                2. Search for: browser.newtabpage.pinned<br>
+                3. Copy the entire value and paste below
+            </p>
+        `;
+        document.getElementById('import-shortcuts-input').placeholder = '[{"url":"https://example.com","label":"Example"}...]';
+        setTimeout(() => document.getElementById('import-shortcuts-input').focus(), 100);
+    });
+    document.getElementById('confirm-import-shortcuts-text').addEventListener('click', async () => {
+        const text = document.getElementById('import-shortcuts-input').value.trim();
+        if (!text) {
             alert('Please paste the shortcut data');
             return;
         }
         try {
-            const pinnedSites = JSON.parse(jsonInput);
-            if (!Array.isArray(pinnedSites) || pinnedSites.length === 0) {
-                alert('Invalid data or no shortcut found');
+            const json = JSON.parse(text);
+            if (Array.isArray(json)) {
+                await importFromFirefox(json);
                 return;
             }
-            const imported = [];
-            for (const site of pinnedSites) {
-                if (state.shortcuts.length >= state.settings.maxShortcuts) break;
-                if (!site.url) continue;
-                const exists = state.shortcuts.some(s => s.url === site.url);
-                if (!exists) {
-                    const newShortcut = {
-                        id: Date.now() + imported.length,
-                        title: site.label || getCleanHostname(site.url),
-                        url: site.url,
-                        icon: site.customScreenshotURL || getFaviconUrl(site.url),
-                        pinned: false,
-                        order: state.shortcuts.length
-                    };
-                    state.shortcuts.push(newShortcut);
-                    imported.push(site.label || site.url);
-                }
-            }
-            if (imported.length > 0) {
-                await saveShortcuts();
-                renderShortcuts();
-                document.getElementById('import-shortcuts-modal').style.display = 'none';
-                alert(`✓ Imported ${imported.length} shortcuts!`);
-            } else {
-                alert('Shortcuts already exist in the grid');
-            }
-        } catch (error) {
-            console.error('Import failed:', error);
-            alert('Failed to parse data');
+        } catch (e) {
+            // or text
         }
+        const parsed = parseShortcutsText(text);
+        await importShortcuts(parsed);
     });
     document.getElementById('cancel-import-shortcuts').addEventListener('click', () => {
         document.getElementById('import-shortcuts-modal').style.display = 'none';
@@ -1455,46 +1598,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Update value displays for sliders
-    document.getElementById('border-radius').addEventListener('input', (e) => {
-        document.getElementById('border-radius-value').textContent = e.target.value;
+    document.getElementById('cancel-import-shortcuts').addEventListener('click', () => {
+        document.getElementById('import-shortcuts-modal').style.display = 'none';
+    });
+    document.getElementById('import-shortcuts-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'import-shortcuts-modal') {
+            document.getElementById('import-shortcuts-modal').style.display = 'none';
+        }
     });
 
-    document.getElementById('animation-speed').addEventListener('input', (e) => {
-        const value = parseFloat(e.target.value);
-        document.getElementById('animation-speed-value').textContent = value.toFixed(1);
-    });
-
-    // Label settings
-    document.getElementById('greeting-type').addEventListener('change', (e) => {
-        updateSetting('greetingType', e.target.value);
-    });
-
-    document.getElementById('user-name').addEventListener('input', (e) => {
-        updateSetting('userName', e.target.value);
-    });
-
-    document.getElementById('label-font-size').addEventListener('input', (e) => {
-        updateSetting('labelFontSize', parseInt(e.target.value));
-    });
-
-    document.getElementById('label-position').addEventListener('change', (e) => {
-        updateSetting('labelPosition', e.target.value);
-    });
-
-    // Shortcuts settings
-    document.getElementById('scaling').addEventListener('input', (e) => {
-        updateSetting('scaling', parseInt(e.target.value));
-    });
-
-    document.getElementById('grid-columns').addEventListener('input', (e) => {
-        updateSetting('gridColumns', parseInt(e.target.value));
-    });
-
-    document.getElementById('max-shortcuts').addEventListener('input', (e) => {
-        updateSetting('maxShortcuts', parseInt(e.target.value));
-    });
-
+    // shortcut stuff
     const shortcutsGrid = document.getElementById('shortcuts-grid');
     if (shortcutsGrid) {
         shortcutsGrid.addEventListener('contextmenu', (e) => {
@@ -1507,7 +1620,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             showContextMenu(e, shortcut);
         });
     }
-
     const shortcutsContainer = document.querySelector('.shortcuts-container');
     if (shortcutsContainer) {
         shortcutsContainer.addEventListener('dragover', (e) => {
@@ -1516,12 +1628,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         shortcutsContainer.addEventListener('drop', (e) => {
             e.preventDefault();
-            
-            if (state.shortcuts.length >= state.settings.maxShortcuts) {
-                alert(`Maximum ${state.settings.maxShortcuts} shortcuts allowed`);
+            if (state.shortcuts.length >= state.settings.shortcutMaxLimit) {
+                alert(`Maximum ${state.settings.shortcutMaxLimit} shortcuts allowed`);
                 return;
             }
-            
             try {
                 const tabData = JSON.parse(e.dataTransfer.getData('application/json'));
                 if (tabData && tabData.url) {
@@ -1530,10 +1640,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
             }
-            
             let url = '';
             let title = '';
-            
             // ff: text/x-moz-url format "URL\nTitle"
             const mozUrl = e.dataTransfer.getData('text/x-moz-url');
             if (mozUrl) {
@@ -1541,7 +1649,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 url = lines[0]?.trim() || '';
                 title = lines[1]?.trim() || '';
             }
-            
             // chromium: try text/html
             if (!url) {
                 const html = e.dataTransfer.getData('text/html');
@@ -1555,7 +1662,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
             }
-            
             // or: text/uri-list or text/plain
             if (!url) {
                 url = e.dataTransfer.getData('text/uri-list') || 
@@ -1569,7 +1675,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('Dropped data not recognized as tab or bookmark');
         });
     }
-
     function createShortcutFromData(title, url, iconUrl) {
         const cleanUrl = normalizeUrl(url);
         if (!cleanUrl) {
@@ -1606,6 +1711,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 break;
             case 'open':
                 window.open(shortcut.url, '_blank');
+                break;
+            case 'copy':
+                navigator.clipboard.writeText(shortcut.url);
                 break;
             case 'delete':
                 deleteShortcut(shortcutId);
@@ -1745,7 +1853,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    setInterval(renderGreeting, 60000);
+    setInterval(renderLabel, 60000);
     
     console.log('All event listeners attached');
 

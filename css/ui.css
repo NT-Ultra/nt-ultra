@@ -12,11 +12,13 @@ body {
     background-size: cover;
     background-position: center;
 }
+
 #app {
     display: grid;
     grid-template-rows: auto auto auto;
     min-height: 100vh;
     position: relative;
+    background: var(--dim-wallpaper);
 }
 
 html {
@@ -220,7 +222,7 @@ html {
     opacity: 1;
     pointer-events: auto;
 }
-.settings-sidebar {
+.settings-sidebar * {
     &::-webkit-scrollbar {
         display: none;
         width: 0;
@@ -349,6 +351,7 @@ html {
     display: flex;
     flex-direction: row;
     font-size:14px;
+    margin-top: 2px;
     & span {
         width: calc(100% - 40px);
         padding: 4px 6px;
@@ -530,28 +533,20 @@ html {
     border: none;
     border-radius: 4px;
     color: var(--element-fg-color);
-    font-size: 14px;
     margin-top: 5px;
     display: flex;
     justify-content: right;
     & button {
-        gap: 8px;
+        gap: 1px;
         margin-left: 10px;
         background: transparent;
         border: none;
         color: color-mix(in srgb, var(--element-fg-color) 40%, transparent);
         cursor: pointer;
-        &:not([class="style-controls-add-btn"],[class="style-controls-remove-btn"]) {
-            text-decoration: underline;
-        }
+        text-decoration: underline;
+        font-size: 14px;
         &:hover {
             color: var(--element-fg-color);
-        }
-        &[class="style-controls-save-btn"] {
-            color: var(--element-fg-color);
-            &:hover {
-                color: var(--accent-color);
-            }
         }
     }
 }

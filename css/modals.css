@@ -31,7 +31,18 @@
     flex: 1;
 }
 
-#export-theme-modal, #import-theme-modal {
+
+#add-theme-modal {
+    .label {
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+    .input-hint {
+        font-size: 12px;
+    }
+}
+
+#export-theme-modal, #import-theme-modal, #import-shortcuts-modal {
     .input-hint {
         font-size: 11px;
         color: color-mix(in srgb, var(--element-fg-color) 60%, transparent);
@@ -105,5 +116,34 @@
 
     .modal-actions .btn:only-child {
         width: 100%;
+    }
+}
+
+.modal .checkbox-span {
+    font-size:12px;
+    & span {
+        width: calc(100% - 40px);
+        padding: 4px 6px 0 0;
+        background: none;
+        border: none;
+        border-radius: 6px;
+        color: rgb(255,100,100);
+        margin-bottom: 6px;
+    }
+    & input {
+        width: 16px;
+        height: 16px;
+        margin-inline: auto 4px;
+        margin-top: 2px;
+        appearance: none;
+        -moz-appearance: none;
+        border-radius:50%;
+        background: var(--element-layered-bg-color);
+        border: 1px solid color-mix(in srgb, var(--element-layered-bg-color) 95%, white);
+        cursor: pointer;
+        &:checked {
+            background: rgb(255,100,100);
+            border: none;       
+        }
     }
 }
