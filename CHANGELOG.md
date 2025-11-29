@@ -10,7 +10,7 @@
 
 # Version History
 
-### <ins>NT Ultra 0.2.5-beta</ins>
+### <ins>NT Ultra 0.2.2-beta</ins>
 
 - Better handling of shortcut favicon loading
 - Padding adjustments for the settings sidebar
