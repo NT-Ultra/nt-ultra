@@ -4,6 +4,10 @@
 
 ###### . . . A familiar New Tab Page experience.
 
+[![Firefox](https://img.shields.io/static/v1?label=%20&message=FIREFOX%20ADD-ON&color=230033&labelColor=230033&style=for-the-badge&logo=Firefox-Browser&logoColor=FF7139)](https://addons.mozilla.org/en-US/firefox/addon/new-tab-ultra-nt-ultra/)
+<!--[![Chrome](https://img.shields.io/static/v1?label=%20&message=CHROME%20WEB%20STORE&color=blue&labelColor=blue&style=for-the-badge&logo=Google-Chrome&logoColor=white)]()
+[![Firefox](https://img.shields.io/static/v1?label=%20&message=MICROSOFT%20EDGE&color=gray&labelColor=gray&style=for-the-badge&logo=firefox&logoColor=white)]()-->
+
 </div>
 
 ## Overview
