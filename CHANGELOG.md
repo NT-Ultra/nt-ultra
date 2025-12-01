@@ -4,11 +4,18 @@
 
 - the index.js is a mess and modularity NEEDS to be addressed (more) if this project is to scale.
 - some of the above would include database seperation, shortcut management seperation, settings & s-sidebar seperation, modal calls, alerts('calling on a non-disruptive noti instead of this default one'), etc, better handling of events on dom load.
+- ^ consider preserving old naming schemas in the process (user data preservation)
 - folders and folder placements, not handled within the shortcut grid.
 - shortcut data needs a constant
+- shortcut max limit doesn't need to be capped at 84
 <!--- custom rss feed with rss2json? (maybe not)-->
 
 # Version History
+
+### <ins>NT Ultra 0.2.5-beta</ins>
+
+- Wallpaper limits have been relaxed to a maximum of 10, 100Mb each.
+- Adjustments to Blur Enabled UI
 
 ### <ins>NT Ultra 0.2.2-beta</ins>
 

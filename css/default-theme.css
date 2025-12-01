@@ -2,14 +2,14 @@
     --element-bg-color: rgb(43, 42, 51);
     --element-layered-bg-color: color-mix(in srgb, var(--element-bg-color) 95%, black);
     --element-fg-color: white;
-    --more-blur: color-mix(in srgb, var(--element-bg-color) 45%, transparent);
+    --more-blur: color-mix(in srgb, var(--element-bg-color) 35%, transparent);
 }}
 
 @media (prefers-color-scheme: light) { * {
     --element-bg-color: rgb(250, 250, 255);
     --element-layered-bg-color: rgb(221, 221, 231);
     --element-fg-color: black;
-    --more-blur: color-mix(in srgb, var(--element-bg-color) 97%, transparent);
+    --more-blur: color-mix(in srgb, var(--element-bg-color) 90%, transparent);
 }}
 
 * {
@@ -20,7 +20,7 @@
 
 body[theme-blur] {
     .settings-sidebar {
-        background: color-mix(in srgb, var(--element-bg-color) 90%, transparent) !important;
+        background: color-mix(in srgb, var(--element-bg-color) 80%, transparent) !important;
     }
     .settings-content {
         backdrop-filter: blur(10px) !important;
@@ -28,6 +28,10 @@ body[theme-blur] {
     .tabs-sidebar {
         background: color-mix(in srgb, var(--element-bg-color) 20%, transparent) !important;
         backdrop-filter: blur(10px) !important;
+    }
+    .tabs-item:not(.active) {
+        background: var(--more-blur) !important;
+        border: 1px solid color-mix(in srgb, white 3%, transparent);
     }
     .modal-content {
         background: color-mix(in srgb, var(--element-bg-color) 40%, transparent) !important;
@@ -40,4 +44,8 @@ body[theme-blur] {
     .settings-sidebar *:not(select):not(option) {
         --element-layered-bg-color: var(--more-blur) !important;
     }
+    select:not(:focus) {
+        background-color: var(--more-blur) !important;
+    }
 }
+
