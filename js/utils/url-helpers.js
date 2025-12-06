@@ -1,6 +1,6 @@
 // ...
 
-window.getCleanHostname = function(url) {
+export function getCleanHostname(url) {
     try {
         let hostname = new URL(url).hostname;
         if (hostname.startsWith('www.')) {
@@ -17,7 +17,7 @@ window.getCleanHostname = function(url) {
     }
 }
 
-window.getFaviconUrl = function(url) {
+export function getFaviconUrl(url) {
     try {
         const hostname = new URL(url).hostname;
         if (!hostname.includes('.')) {
@@ -31,7 +31,7 @@ window.getFaviconUrl = function(url) {
     }
 }
 
-window.normalizeUrl = function(url) {
+export function normalizeUrl(url) {
     url = url.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;

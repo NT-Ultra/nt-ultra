@@ -2,19 +2,26 @@
 
 ### <ins>Priorities/Notes</ins>
 
-- the index.js is a mess and modularity NEEDS to be addressed (more) if this project is to scale.
-- some of the above would include database seperation, shortcut management seperation, settings & s-sidebar seperation, modal calls, alerts('calling on a non-disruptive noti instead of this default one'), etc, better handling of events on dom load.
-- ^ consider preserving old naming schemas in the process (user data preservation)
 - folders and folder placements, not handled within the shortcut grid.
 - shortcut data needs a constant
-- shortcut max limit doesn't need to be capped at 84
-<!--- custom rss feed with rss2json? (maybe not)-->
+- may need to include wallpaper importing/exporting (its just convenient)
+- modal management can probably be handled differently (html seems cluttered)
+- trackers-sidebar files need a plan (structure)
+- context menu can be expanded to sidebars
+- selects need to be styled (css)
 
 # Version History
 
-### <ins>NT Ultra 0.2.5-beta</ins>
+### <ins>NT Ultra 0.5-beta</ins>
 
-- Wallpaper limits have been relaxed to a maximum of 10, 100Mb each.
+- Modularity has been achieved (without breaking anything) (0.5)
+- Introducing "Trackers", a convenient way to track information via RSS Feeds (rss urls, github activities, yt channel activity, reddit post, crypto/stocks, weather and more)
+- Modal dialogs now follow a linear left-right order, instead of right-left
+<!-- - Clean importing of shortcuts through a delete first toggle in module -->
+- Wallpaper limits have been relaxed to a maximum of 10, 100Mb each (0.2.5)
+- New Label Position options (top-left, top-right, bottom-left, bottom-right)
+- Max Shortcut limit has been increased from 84 to 168
+- Shortcut scale on hover style adjustments
 - Adjustments to Blur Enabled UI
 
 ### <ins>NT Ultra 0.2.2-beta</ins>

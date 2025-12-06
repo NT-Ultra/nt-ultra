@@ -1,4 +1,4 @@
-// state /////////////////////////////////////////
+// State
 let tabsSidebarState = {
     isOpen: false,
     tabs: [],
@@ -7,20 +7,12 @@ let tabsSidebarState = {
     playingSectionCollapsed: false
 };
 
-if (typeof browser === 'undefined') {
-    browser = chrome;
-}
-
-// init
-async function initTabsSidebar() {
-    await loadTabsFromBrowser();
-    renderTabsSidebar();
-    setupTabsSidebarEventListeners();
-}
+// Browser API compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 async function loadTabsFromBrowser() {
     try {
-        const tabs = await browser.tabs.query({});
+        const tabs = await browserAPI.tabs.query({});
         tabsSidebarState.tabs = tabs.map(tab => {
             if (tab.audible) {
                 tabsSidebarState.tabsWithAudio.add(tab.id);
@@ -64,10 +56,8 @@ function renderTabItem(tab, showAudioControls = false) {
     if (tab.active) {
         tabItem.classList.add('active');
     }
-    
     tabItem.draggable = true;
     let dragStarted = false;
-    
     tabItem.addEventListener('dragstart', (e) => {
         dragStarted = true;
         e.dataTransfer.effectAllowed = 'copy';
@@ -78,12 +68,10 @@ function renderTabItem(tab, showAudioControls = false) {
         }));
         tabItem.classList.add('dragging');
     });
-    
     tabItem.addEventListener('dragend', () => {
         dragStarted = false;
         tabItem.classList.remove('dragging');
     });
-    
     const favicon = document.createElement('img');
     favicon.className = 'tabs-item-favicon';
     if (tab.favIconUrl) {
@@ -103,14 +91,11 @@ function renderTabItem(tab, showAudioControls = false) {
         tabItem.appendChild(placeholder);
     }
     tabItem.appendChild(favicon);
-    
     const tabInfo = document.createElement('div');
     tabInfo.className = 'tabs-item-info';
-    
     const tabTitle = document.createElement('div');
     tabTitle.className = 'tabs-item-title';
     tabTitle.textContent = tab.title || 'Untitled';
-    
     const tabUrl = document.createElement('div');
     tabUrl.className = 'tabs-item-url';
     try {
@@ -119,11 +104,9 @@ function renderTabItem(tab, showAudioControls = false) {
     } catch (e) {
         tabUrl.textContent = tab.url;
     }
-    
     tabInfo.appendChild(tabTitle);
     tabInfo.appendChild(tabUrl);
     tabItem.appendChild(tabInfo);
-    
     if (showAudioControls && tab.hasAudio) {
         const audioBtn = document.createElement('button');
         audioBtn.className = 'tabs-item-audio';
@@ -139,7 +122,6 @@ function renderTabItem(tab, showAudioControls = false) {
         });
         tabItem.appendChild(audioBtn);
     }
-    
     const closeBtn = document.createElement('button');
     closeBtn.className = 'tabs-item-close';
     closeBtn.draggable = false;
@@ -161,7 +143,6 @@ function renderTabItem(tab, showAudioControls = false) {
             await switchToTab(tab.id, tab.windowId);
         }
     });
-    
     return tabItem;
 }
 
@@ -179,13 +160,13 @@ function renderTabsSidebar() {
         playingHeader.innerHTML = `Playing (${playingTabs.length} tab${playingTabs.length !== 1 ? 's' : ''}) ${tabsSidebarState.playingSectionCollapsed ? '↓' : '↑'}`;
         playingHeader.addEventListener('click', () => togglePlayingCollapse());
         tabsList.appendChild(playingHeader);
+        
         if (!tabsSidebarState.playingSectionCollapsed) {
             playingTabs.forEach(tab => {
                 tabsList.appendChild(renderTabItem(tab, true));
             });
         }
     }
-    
     const tabsByWindow = {};
     tabsSidebarState.tabs.forEach(tab => {
         if (!tabsByWindow[tab.windowId]) {
@@ -193,7 +174,6 @@ function renderTabsSidebar() {
         }
         tabsByWindow[tab.windowId].push(tab);
     });
-    
     Object.entries(tabsByWindow).forEach(([windowId, tabs], index) => {
         const isCollapsed = tabsSidebarState.collapsedWindows.has(windowId);
         const windowHeader = document.createElement('div');
@@ -213,10 +193,11 @@ function renderTabsSidebar() {
     }
 }
 
-function updateTriggerVisibility(currentMode) {
+export function updateTriggerVisibility(currentMode) {
     const tabsSidebar = document.getElementById('tabs-sidebar');
     const tabsTrigger = document.querySelector('.tht');
     const mode = currentMode || 'disabled'; 
+    
     if (tabsTrigger && tabsSidebar) {
         if (mode === 'autohide') {
             tabsTrigger.style.display = 'block';
@@ -226,12 +207,11 @@ function updateTriggerVisibility(currentMode) {
         }
     }
 }
-window.updateTriggerVisibility = updateTriggerVisibility;
 
 async function switchToTab(tabId, windowId) {
     try {
-        await browser.windows.update(windowId, { focused: true });
-        await browser.tabs.update(tabId, { active: true });
+        await browserAPI.windows.update(windowId, { focused: true });
+        await browserAPI.tabs.update(tabId, { active: true });
     } catch (error) {
         console.error('Error switching to tab:', error);
     }
@@ -239,7 +219,7 @@ async function switchToTab(tabId, windowId) {
 
 async function closeTab(tabId) {
     try {
-        await browser.tabs.remove(tabId);
+        await browserAPI.tabs.remove(tabId);
         tabsSidebarState.tabsWithAudio.delete(tabId);
         await loadTabsFromBrowser();
         renderTabsSidebar();
@@ -250,7 +230,7 @@ async function closeTab(tabId) {
 
 async function toggleTabMute(tabId, muted) {
     try {
-        await browser.tabs.update(tabId, { muted: muted });
+        await browserAPI.tabs.update(tabId, { muted: muted });
         await loadTabsFromBrowser();
         renderTabsSidebar();
     } catch (error) {
@@ -261,6 +241,7 @@ async function toggleTabMute(tabId, muted) {
 function toggleTabsSidebar() {
     const sidebar = document.getElementById('tabs-sidebar');
     if (!sidebar) return;
+    
     tabsSidebarState.isOpen = !tabsSidebarState.isOpen;
     if (tabsSidebarState.isOpen) {
         sidebar.classList.add('open');
@@ -269,15 +250,18 @@ function toggleTabsSidebar() {
     }
 }
 
-function setupTabsSidebarEventListeners() {
+export async function initTabsSidebar() {
+    await loadTabsFromBrowser();
+    renderTabsSidebar();
+    setupEventListeners();
+}
+
+function setupEventListeners() {
     const sidebar = document.getElementById('tabs-sidebar');
     const closeBtn = document.getElementById('close-tabs-sidebar');
-    const refreshBtn = document.getElementById('refresh-tabs');
     const tabsBtn = document.getElementById('tabs-btn');
     const tabsTrigger = document.querySelector('.tht');
-
     if (!sidebar) return;
-    
     if (tabsBtn) {
         tabsBtn.addEventListener('click', () => {
             toggleTabsSidebar();
@@ -288,20 +272,13 @@ function setupTabsSidebarEventListeners() {
             toggleTabsSidebar();
         });
     }
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async () => {
-            await loadTabsFromBrowser();
-            renderTabsSidebar();
-        });
-    }
-
+    // Auto-hide
     sidebar.addEventListener('mouseenter', () => {
         const mode = window.tabsSidebarMode || 'disabled';
         if (mode === 'autohide' && !tabsSidebarState.isOpen) {
             toggleTabsSidebar();
         }
     });
-    
     sidebar.addEventListener('mouseleave', () => {
         const mode = window.tabsSidebarMode || 'disabled';
         if (mode === 'autohide' && tabsSidebarState.isOpen) {
@@ -312,7 +289,6 @@ function setupTabsSidebarEventListeners() {
             }, 50); 
         }
     });
-
     if (tabsTrigger) {
         tabsTrigger.addEventListener('mouseenter', () => {
             const mode = window.tabsSidebarMode || 'disabled';
@@ -321,32 +297,27 @@ function setupTabsSidebarEventListeners() {
             }
         });
     }
-    
-    if (browser.tabs) { 
-        browser.tabs.onCreated.addListener(async () => {
+
+    // Browser API compatible listeners
+    if (browserAPI.tabs) { 
+        browserAPI.tabs.onCreated.addListener(async () => {
             await loadTabsFromBrowser();
             renderTabsSidebar();
         });
         
-        browser.tabs.onRemoved.addListener(async () => {
+        browserAPI.tabs.onRemoved.addListener(async () => {
             await loadTabsFromBrowser();
             renderTabsSidebar();
         });
         
-        browser.tabs.onUpdated.addListener(async () => {
+        browserAPI.tabs.onUpdated.addListener(async () => {
             await loadTabsFromBrowser();
             renderTabsSidebar();
         });
         
-        browser.tabs.onActivated.addListener(async () => {
+        browserAPI.tabs.onActivated.addListener(async () => {
             await loadTabsFromBrowser();
             renderTabsSidebar();
         });
     }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTabsSidebar);
-} else {
-    initTabsSidebar();
 }

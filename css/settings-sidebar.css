@@ -1,13 +1,11 @@
 .settings-btn {
     position: fixed;
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
+    top: 16px; right: 16px;
+    width: 40px; height: 40px;
     border-radius: 50%;
-    background: rgba(31, 31, 31, 0.2);
     backdrop-filter: blur(10px);
     border: none;
+    background: rgba(31, 31, 31, 0.2);
     color: var(--element-fg-color);
     cursor: pointer;
     display: flex;
@@ -20,9 +18,6 @@
     }
 }
 
-.settings-sidebar * {
-    user-select: none;
-}
 .settings-sidebar {
     position: fixed;
     top: 5px;
@@ -32,28 +27,27 @@
     height: calc(100vh - 10px);
     background: var(--element-bg-color);
     transition: right 0.3s ease;
-    z-index: 200;
+    z-index: 200; /*201*/
     border-radius: var(--element-border-radius);
     overflow: hidden;
+    & * {
+        user-select: none;
+    }
+    &.open {
+        right: 0;
+    }
 }
-.settings-sidebar.open {
-    right: 0;
-}
+
 .settings-sidebar::before {
     content: '';
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    pointer-events: none;
+    top: 0; right: 0; bottom: 0; left: 0;
+    /* background: rgba(0, 0, 0, 0.3); opacity: 0; */
     transition: opacity 0.3s;
-    z-index: -1;
+    z-index: -1; pointer-events: none;
 }
 .settings-sidebar.open::before {
-    opacity: 1;
+    opacity: 0; /* no need anymore */
     pointer-events: auto;
 }
 .settings-sidebar * {
@@ -64,37 +58,37 @@
     }
     scrollbar-width: none;  
 }
+
 .settings-content {
     padding: 24px;
     height: 100%;
     overflow-y: auto;
+    .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .settings-header h2 {
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--element-fg-color);
+        cursor: pointer;
+        padding: 4px;
+    }
+    .settings-section {
+        margin-bottom: 24px;
+    }
+    .settings-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
 }
-.settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-.settings-header h2 {
-    font-size: 20px;
-    font-weight: bold;
-}
-.close-btn {
-    background: none;
-    border: none;
-    color: var(--element-fg-color);
-    cursor: pointer;
-    padding: 4px;
-}
-.settings-section {
-    margin-bottom: 24px;
-}
-.settings-section h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
 
 .wallpapers-grid {
     display: grid;
@@ -121,13 +115,10 @@
 }
 .wallpaper-delete {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 24px;
-    height: 24px;
-    background: #dc2626;
-    border: none;
-    border-radius: 50%;
+    top: 4px; right: 4px;
+    width: 24px; height: 24px;
+    background: rgba(255, 76, 76, 0.589);
+    border: none; border-radius: 50%;
     color: white;
     cursor: pointer;
     opacity: 0;
@@ -238,4 +229,23 @@
             color: var(--element-fg-color);
         }
     }
+}
+
+body:has(.tabs-item.dragging) {
+    #shortcuts-grid {
+        outline: 4px dashed var(--accent-color);
+        border-radius: 18px;
+        outline-offset: 20px;
+        animation: outline-glow 1s infinite alternate;
+    }
+}
+
+
+@keyframes outline-glow {
+  from {
+    outline-color: color-mix(in srgb, var(--accent-color) 10%, transparent);
+  }
+  to {
+    outline-color: color-mix(in srgb, var(--accent-color) 80%, transparent);
+  }
 }

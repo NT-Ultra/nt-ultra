@@ -1,6 +1,11 @@
-.shortcut[shortcut-scale-hover]:hover {
-    transform: scale(1.4);
-    transition: transform 0.2s ease;
+.shortcut[shortcut-scale-hover] {
+    &:not(:hover) {
+        transition: transform 1s ease;
+    }
+    &:hover {
+        transform: scale(1.4);
+        transition: transform 0.1s ease;
+    }
 }
 
 .shortcut[shortcut-titles-hover] {

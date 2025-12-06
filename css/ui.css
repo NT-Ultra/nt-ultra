@@ -33,10 +33,7 @@ html {
     margin: auto 0 0 0;
 /*     padding: 25px; */
 }
-.header.bottom-position {
-    grid-row: 3;
-    margin: 0 0 auto 0;
-}
+
 .header h1 {
     font-size: 48px;
     font-weight: bold;
@@ -297,4 +294,11 @@ html {
 .color-preset:hover {
     border-color: var(--accent-color);
     transform: scale(1.05);
+}
+
+.experimental-label {
+    font-style: italic;
+    color: rgba(255, 76, 76, 0.589);
+    margin-inline: 2px;
+    font-size:14px;
 }

@@ -1,4 +1,8 @@
-// drag settings /////////////////////////////////
+import { state } from '../core/state.js';
+import { saveShortcuts } from '../core/database.js';
+import { renderShortcuts } from './shortcuts.js';
+
+// default state
 let dragState = {
     draggedElement: null,
     draggedShortcut: null,
@@ -8,13 +12,18 @@ let dragState = {
     isDragging: false
 };
 
-// init //////////////////////////////////////////
-function initShortcutDragDrop() {
+// shortcuts.js will check if dragging
+export function isDragging() {
+    return dragState.isDragging;
+}
+
+export function initShortcutDragDrop() {
     const grid = document.getElementById('shortcuts-grid');
     if (!grid) {
-        console.error('Grid not found!');
+        console.error('Grid not found?');
         return;
     }
+    // refresh listeners
     grid.removeEventListener('dragover', handleGridDragOver);
     grid.removeEventListener('drop', handleGridDrop);
     grid.addEventListener('dragover', handleGridDragOver);
@@ -26,7 +35,6 @@ function initShortcutDragDrop() {
         shortcut.addEventListener('dragstart', handleDragStart);
         shortcut.addEventListener('dragend', handleDragEnd);
         shortcut.addEventListener('dragenter', handleDragEnter);
-        
         shortcut.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
@@ -35,7 +43,7 @@ function initShortcutDragDrop() {
     });
 }
 
-function initializeShortcutOrder() {
+export function initializeShortcutOrder() {
     state.shortcuts.forEach((shortcut, index) => {
         if (shortcut.order === undefined) {
             shortcut.order = index;
@@ -44,7 +52,6 @@ function initializeShortcutOrder() {
     state.shortcuts.sort((a, b) => a.order - b.order);
 }
 
-// placeholder ///////////////////////////////////
 function createPlaceholder() {
     const placeholder = document.createElement('div');
     placeholder.className = 'shortcut shortcut-placeholder';
@@ -59,6 +66,7 @@ function createPlaceholder() {
     placeholder.addEventListener('drop', handleGridDrop);
     return placeholder;
 }
+
 function insertPlaceholderAt(visualIndex) {
     const grid = document.getElementById('shortcuts-grid');
     if (dragState.placeholder) {
@@ -66,7 +74,6 @@ function insertPlaceholderAt(visualIndex) {
     }
     dragState.placeholder = createPlaceholder();
     dragState.placeholderIndex = visualIndex;
-    console.log('Inserting placeholder at visual index:', visualIndex);
     const allShortcuts = Array.from(grid.querySelectorAll('.shortcut:not(.shortcut-placeholder)'))
         .filter(s => s.style.display !== 'none');
 
@@ -83,18 +90,15 @@ function insertPlaceholderAt(visualIndex) {
     }
 }
 
-// drag drop logic ///////////////////////////////
+// Drag event handlers
 function handleDragStart(e) {
     const draggedElement = e.currentTarget;
-    
     dragState.isDragging = true;
     dragState.draggedIndex = parseInt(draggedElement.dataset.index);
     dragState.draggedShortcut = state.shortcuts[dragState.draggedIndex];
     dragState.draggedElement = draggedElement;
-    
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', draggedElement.innerHTML);
-    
     const dragImage = draggedElement.cloneNode(true);
     dragImage.style.opacity = '0.8';
     dragImage.style.transform = 'rotate(3deg)';
@@ -144,7 +148,7 @@ function handleGridDragOver(e) {
 }
 
 function handleGridDrop(e) {
-    console.log('!!! GRID DROP FIRED !!!');
+    console.log('Grid drop fired');
     if (!dragState.isDragging) {
         console.log('Not dragging, ignoring drop');
         return;
@@ -154,7 +158,7 @@ function handleGridDrop(e) {
     const originalIndex = dragState.draggedIndex;
     const visualDropIndex = dragState.placeholderIndex;
     console.log('Original index:', originalIndex);
-    console.log('Visual drop index (where placeholder is):', visualDropIndex);
+    console.log('Visual drop index:', visualDropIndex);
     console.log('Before:', state.shortcuts.map(s => s.title));
     if (originalIndex !== visualDropIndex) {
         const shortcuts = [...state.shortcuts];
@@ -180,7 +184,7 @@ function handleDragEnd(e) {
     }
 }
 
-// cleanup ///////////////////////////////////////
+// Cleanup
 function cleanupDrag() {
     if (dragState.placeholder && dragState.placeholder.parentNode) {
         dragState.placeholder.remove();
@@ -199,11 +203,3 @@ function cleanupDrag() {
         isDragging: false
     };
 }
-
-// send to index
-window.initShortcutDragDrop = initShortcutDragDrop;
-window.initializeShortcutOrder = initializeShortcutOrder;
-Object.defineProperty(window, 'dragState', {
-    get: () => dragState,
-    configurable: true
-});

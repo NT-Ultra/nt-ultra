@@ -38,6 +38,11 @@
                 <line x1="9" y1="3" x2="9" y2="21"></line>
             </svg>
         </button>
+        <button id="trackers-btn" class="trackers-btn" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-3l-5 5v-5H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12z"/>
+            </svg>
+        </button>
 
         <!-- Settings Sidebar -->
         <div id="settings-sidebar" class="settings-sidebar">
@@ -98,6 +103,11 @@
                         <option value="button">Button</option>
                         <option value="autohide">Autohide</option>
                     </select>
+                    <label class="label">Trackers</label>
+                    <select id="display-trackers" class="input">
+                        <option value="on">On</option>
+                        <option value="off">Off</option>
+                    </select>
                     <label class="label">Theme</label>
                     <select id="theme-mode" class="input">
                         <option value="default">Default</option>
@@ -154,6 +164,10 @@
                     <select id="label-position" class="input">
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
+                        <option value="top-left">Top and Left</option>
+                        <option value="top-right">Top and Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-right">Bottom Right</option>
                     </select>
                     <label class="label">Content</label>
                     <select id="content-type" class="input">
@@ -179,7 +193,7 @@
                     <h3>Shortcuts</h3>
                     
                     <label class="label">Max Shortcuts: <span id="shortcut-max-limit-value">24</span></label>
-                    <input type="range" id="shortcut-max-limit" class="slider" min="8" max="84" step="4" value="24">
+                    <input type="range" id="shortcut-max-limit" class="slider" min="8" max="168" step="4" value="24">
                     
                     <label class="label">Columns: <span id="shortcut-grid-columns-value">8</span></label>
                     <input type="range" id="shortcut-grid-columns" class="slider" min="4" max="12" value="8">
@@ -218,12 +232,6 @@
                 <div class="tabs-header">
                     <h2>Open Tabs (<span id="tabs-count">0</span>)</h2>
                     <div class="tabs-header-actions">
-                        <button id="refresh-tabs" class="icon-btn" title="Refresh">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                            </svg>
-                        </button>
                         <button id="close-tabs-sidebar" class="close-btn">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -237,6 +245,30 @@
             </div>
         </div>
         <div class="tht"></div>
+
+        <!-- Trackers Sidebar -->
+        <div id="trackers-sidebar" class="trackers-sidebar">
+            <div class="trackers-content">
+                <div id="trackers-grid" class="trackers-grid">
+
+                </div>
+                <div class="trackers-footer">
+                    <button id="close-trackers" class="trackers-footer-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <button id="add-tracker-btn" class="trackers-footer-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <span class="trackers-footer-count">Trackers (<span id="trackers-count">0</span>)<span class="experimental-label"> EXPERIMENTAL</span></span>
+                </div>
+            </div>
+        </div>
 
         <!-- context menu -->
         <div id="context-menu" class="context-menu" style="display: none;">
@@ -272,8 +304,8 @@
                 <input type="text" id="add-theme-name" class="input" placeholder="My Theme" maxlength="30">
                 <p class="input-hint">Max 30 characters. Letters, numbers, spaces, hyphens, and underscores only.</p>
                 <div class="modal-actions">
-                    <button id="confirm-add-theme" class="btn btn-primary">Add Theme</button>
                     <button id="cancel-add-theme" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-add-theme" class="btn btn-primary">Add Theme</button>
                 </div>
             </div>
         </div>
@@ -289,9 +321,9 @@
                 <label class="label">Description (optional)</label>
                 <textarea id="export-theme-description" class="input" placeholder="Describe your theme..." rows="3"></textarea>
                 <div class="modal-actions">
-                    <button id="confirm-export-file" class="btn btn-primary">Download File</button>
-                    <button id="confirm-export-copy" class="btn btn-primary">Copy JSON</button>
                     <button id="cancel-export-theme" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-export-file" class="btn btn-primary">Export File</button>
+                    <button id="confirm-export-copy" class="btn btn-primary">Clipboard</button>
                 </div>
             </div>
         </div>
@@ -363,8 +395,8 @@
                     <h3>Enter Image URL</h3>
                     <input type="text" id="wallpaper-url-input" class="input" placeholder="https://example.com/image.jpg">
                     <div class="modal-actions" style="margin-top: 16px;">
-                        <button id="wallpaper-url-next" class="btn btn-primary">Next</button>
                         <button id="wallpaper-url-back" class="btn btn-secondary">Back</button>
+                        <button id="wallpaper-url-next" class="btn btn-primary">Next</button>
                     </div>
                 </div>
 
@@ -384,8 +416,8 @@
                         </div>
                     </div>
                     <div class="modal-actions" style="margin-top: 16px;">
-                        <button id="wallpaper-color-next" class="btn btn-primary">Next</button>
                         <button id="wallpaper-color-back" class="btn btn-secondary">Back</button>
+                        <button id="wallpaper-color-next" class="btn btn-primary">Next</button>
                     </div>
                 </div>
 
@@ -393,8 +425,8 @@
                     <h3>Preview Wallpaper</h3>
                     <div id="wallpaper-preview" class="wallpaper-preview"></div>
                     <div class="modal-actions" style="margin-top: 16px;">
-                        <button id="wallpaper-confirm" class="btn btn-primary">Confirm</button>
                         <button id="wallpaper-preview-back" class="btn btn-secondary">Cancel</button>
+                        <button id="wallpaper-confirm" class="btn btn-primary">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -417,8 +449,8 @@
                     <span>Delete all shortcuts (except pinned)</span><input type="checkbox" id="reset-shortcuts">
                 </div>
                 <div class="modal-actions">
-                    <button id="confirm-reset" class="btn btn-primary" style="background: rgb(255,25,25);">Reset</button>
                     <button id="cancel-reset" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-reset" class="btn btn-primary" style="background: red;">Reset</button>
                 </div>
             </div>
         </div>
@@ -429,7 +461,7 @@
                 <h3>Import Shortcuts</h3>
                 <label class="label">Choose Import Method</label>
                 <div class="checkbox-span">
-                    <span>Delete existing shortcuts before importing?</span><input type="checkbox" id="import-delete-check">
+                    <!-- <span>Delete existing shortcuts before importing?</span><input type="checkbox" id="import-delete-check"> -->
                 </div>
                 <div class="import-options">
                     <button id="import-shortcuts-file-btn" class="btn btn-primary">
@@ -454,8 +486,21 @@
                         </svg>
                         Firefox
                     </button>
-                    <button id="export-shortcuts-file-btn" class="btn btn-primary" style="display: none;">File</button>
-                    <button id="export-shortcuts-clipboard-btn" class="btn btn-primary" style="display: none;">Clipboard</button>
+                    <button id="export-shortcuts-file-btn" class="btn btn-primary" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        File
+                    </button>
+                    <button id="export-shortcuts-clipboard-btn" class="btn btn-primary" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        Clipboard
+                    </button>
                 </div>
                 <div id="import-shortcuts-text-area" style="display: none; margin-top: 16px;">
                     <label class="label" id="import-shortcuts-label">Paste shortcuts</label>
@@ -465,18 +510,29 @@
                 <button id="cancel-import-shortcuts" class="btn btn-secondary" style="margin-top: 16px;">Cancel</button>
             </div>
         </div>
+
+        <!-- Add Tracker Modal -->
+        <div id="add-tracker-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Add Tracker</h3>
+                <label class="label">Tracking: <span id="tracker-type-display" style="color: var(--accent-color); font-weight: 600;">...</span></label>
+                <label class="label">URL</label>
+                <input type="text" id="tracker-url" class="input" placeholder="Enter URL...">
+                <label class="label">Title (optional)</label>
+                <input type="text" id="tracker-title" class="input" placeholder="auto-detected from feed">
+                <div class="modal-actions">
+                    <button id="save-tracker" class="btn btn-primary">Add Tracker</button>
+                    <button id="cancel-tracker" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
         
         <input type="file" id="wallpaper-file-input" accept="image/*" style="display: none;">
         <input type="file" id="import-theme-file-input" accept=".json,application/json" style="display: none;">
         <input type="file" id="import-shortcuts-file-input" accept=".txt,text/plain" style="display: none;">
     </div>
 
-    <script src="./js/utils/url-helpers.js"></script>
-    <script src="./js/shortcuts-dragdrop.js"></script>
-    <script src="./js/tabs-sidebar.js"></script>
-    <script src="./js/core/sync.js"></script>
-    <script src="index.js"></script>
-    <!-- eventually we'll export functions instead of using globals -->
+    <script type="module" src="index.js"></script>
     
 </body>
 </html>

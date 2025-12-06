@@ -33,6 +33,14 @@ body[theme-blur] {
         background: var(--more-blur) !important;
         border: 1px solid color-mix(in srgb, white 3%, transparent);
     }
+    .trackers-sidebar {
+        background: color-mix(in srgb, var(--element-bg-color) 20%, transparent) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    .tracker-item {
+        background: var(--more-blur) !important;
+        border: 1px solid color-mix(in srgb, white 3%, transparent);
+    }
     .modal-content {
         background: color-mix(in srgb, var(--element-bg-color) 40%, transparent) !important;
         backdrop-filter: blur(10px) !important;

@@ -1,0 +1,33 @@
+.header[label-position="bottom"] {
+    grid-row: 3;
+    margin: 0 0 auto 0;
+}
+
+.header[label-position="top-left"] {
+    position: absolute;
+    top: 22px;
+    left: 22px;
+}
+body:has(#tabs-btn[style="display: flex;"]) {
+    .header[label-position="top-left"] {
+        left: 68px !important;
+    }
+}
+
+.header[label-position="top-right"] {
+    position: absolute;
+    top: 22px;
+    right: 68px;
+}
+
+.header[label-position="bottom-left"] {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+.header[label-position="bottom-right"] {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}

@@ -1,3 +1,5 @@
+// sync.js (originally this was used as a window.function -> window.syncModule - to sync certain settings to browser profile as a fallback)
+
 const SYNC_VERSION = 1;
 const MAX_SYNC_SIZE = 8000; // chrome apparently
 
