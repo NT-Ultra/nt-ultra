@@ -9,6 +9,7 @@
 - trackers-sidebar files need a plan (structure)
 - context menu can be expanded to sidebars
 - selects need to be styled (css)
+- Clean importing of shortcuts through a delete first toggle in module
 
 # Version History
 
@@ -17,7 +18,6 @@
 - Modularity has been achieved (without breaking anything) (0.5)
 - Introducing "Trackers", a convenient way to track information via RSS Feeds (rss urls, github activities, yt channel activity, reddit post, crypto/stocks, weather and more)
 - Modal dialogs now follow a linear left-right order, instead of right-left
-<!-- - Clean importing of shortcuts through a delete first toggle in module -->
 - Wallpaper limits have been relaxed to a maximum of 10, 100Mb each (0.2.5)
 - New Label Position options (top-left, top-right, bottom-left, bottom-right)
 - Max Shortcut limit has been increased from 84 to 168
